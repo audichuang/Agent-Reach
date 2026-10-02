@@ -129,7 +129,11 @@ agent-reach doctor --json
 
 When the user asks “help me configure Boss Zhipin” / “帮我配 Boss直聘”, read the
 Boss section in `references/career.md`. After explicit install approval, run
-`agent-reach install --env=local --system --channels=boss`, launch the dedicated
+`agent-reach install --env=local --system --channels=boss` (on this machine `--system`
+force-overwrites every agent's `agent-reach` skill with the upstream copy bundled in the
+uv package, replacing aghub's links — tell the user first, then restore this fork's links
+per the aghub-cli skill and confirm all `linked` with `aghub-cli -g doctor --verify-links`),
+launch the dedicated
 loopback-only Chrome profile for their OS, then **pause and have the user visually
 confirm** the window is logged in (avatar in the top-right); if not, have them log
 in manually. Then verify with `boss --cdp-url http://localhost:9222 login --cdp`

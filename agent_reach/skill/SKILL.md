@@ -104,7 +104,10 @@ Cookie-Editor 手工导出后配置 xiaohongshu-mcp / 存量工具。
 
 Boss直聘配置触发：当用户说“帮我配 Boss直聘”时，先读取 `references/career.md`
 的 Boss 章节，然后在获得安装授权后运行
-`agent-reach install --env=local --system --channels=boss`。Agent 负责按系统启动
+`agent-reach install --env=local --system --channels=boss`（本机注意：`--system` 会把
+各 agent 的 `agent-reach` skill 强制覆盖成 uv 包内附的上游版本，替换 aghub 的链接；
+先告诉用户这一点，装完后按 aghub-cli skill 恢复本 fork 的链接，以
+`aghub-cli -g doctor --verify-links` 全部 `linked` 验收）。Agent 负责按系统启动
 只绑定 `127.0.0.1:9222` 的专用 Chrome；**拉起后第一步是暂停并让用户肉眼确认**
 窗口内是已登录状态（右上角有头像），未登录则让用户登录/扫码，用户确认后再运行
 `boss --cdp-url http://localhost:9222 login --cdp` 和 `agent-reach doctor` 验收。
