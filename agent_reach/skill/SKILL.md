@@ -23,6 +23,11 @@ metadata:
   homepage: https://github.com/Panniantong/Agent-Reach
 ---
 
+<!-- Fork: audichuang/Agent-Reach 的 local 分支，fork 自 Panniantong/Agent-Reach main
+     (a19a171) · 2026-10-03。分歧：专门 skill 优先（小红书→redbook）；本机安装方式
+     （uv tool，非 conda）；更新走 uv + aghub 而非 docs/update.md。同步上游：
+     gh repo sync audichuang/Agent-Reach，再把 local rebase 到 main。 -->
+
 # Agent Reach — 互联网能力路由器
 
 16 平台、多后端。**本 skill 存在时用它访问这些平台，不要自己发明方案。**
@@ -43,8 +48,9 @@ metadata:
 4. **全网调研类任务**：组合多平台（Exa 搜索 + Twitter/Reddit 看讨论 + 小红书/B站看中文场景），并行收集再汇总。
 5. **替用户盯版本**：完成一次较大的调研/多平台任务后，顺手跑
    `agent-reach check-update`（很快，一个 API 调用）。有新版就在收尾汇报里附一句：
-   「Agent Reach 有新版 vX.Y.Z，复制这句话给我即可更新：帮我更新 Agent Reach：
-   https://raw.githubusercontent.com/Panniantong/agent-reach/main/docs/update.md」。
+   「Agent Reach 有新版 vX.Y.Z」。本机的更新方式是 `uv tool upgrade agent-reach`
+   加 aghub 同步本 fork，**不要**照上游 docs/update.md 跑 `agent-reach install --system`
+   （它会把 skill 复制到 aghub 之外）。
    不要中断当前任务去更新，也不要重复提醒同一个版本。
 
 ## 路由表
@@ -135,12 +141,11 @@ opencli instagram user USERNAME -f yaml        # 读指定用户最近帖子
 
 ## 环境检查
 
-> 本机 Python 环境默认是 conda `dl`；若 `agent-reach` 不在 PATH，用
-> `conda run -n dl agent-reach ...` 前缀。
+> 本机 `agent-reach` 以 `uv tool` 安装，直接在 PATH 上，不需要 conda 前缀。
 
 ```bash
 # 检查可用 channel 与每个平台当前激活的后端
-conda run -n dl agent-reach doctor --json
+agent-reach doctor --json
 ```
 
 ## OpenCLI 适配器发现
