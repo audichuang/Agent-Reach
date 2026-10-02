@@ -4,9 +4,28 @@
 
 ## 小红书 / XiaoHongShu（多后端）
 
-> **先看有没有 redbook**：若已安装 `redbook` skill / CLI（`command -v redbook`），小红书直接用它，
-> 体检用 `redbook whoami`，下面三个后端和 Doctor 的小红书状态都不用看——redbook 用自己保存的
-> Cookie，Doctor 检测不到。只有没装 redbook 或 `redbook whoami` 失败时才往下走。
+### 先试 redbook（已安装时：`command -v redbook`）
+
+redbook 用自己保存的 Cookie 文件，Doctor 检测不到，所以 Doctor 对小红书的 `warn` /
+`active_backend: null` 不说明 redbook 能不能用。每条 redbook 命令都带
+`REDBOOK_COOKIE_FILE` 前缀：不带时如果 `~/.redbook/cookies.json` 不存在，redbook 会自动去读
+Chrome Cookie，越过下面「不读取浏览器 Cookie」的边界；带上后文件缺失就直接报错。
+
+```bash
+REDBOOK_COOKIE_FILE=~/.redbook/cookies.json redbook whoami
+REDBOOK_COOKIE_FILE=~/.redbook/cookies.json redbook search "query" --json
+REDBOOK_COOKIE_FILE=~/.redbook/cookies.json redbook read "NOTE_URL" --json   # 用搜索结果里的 URL
+```
+
+- `whoami` 通过只说明账号连得上，不保证每个命令可用，以实际命令结果为准。例如 `search` 报
+  `-104` 是账号级接口限制（redbook 文档），不要重试，直接回退。
+- `whoami` 会显示账号属于小红书（xiaohongshu.com）还是 RedNote（rednote.com），回报时说明用的是哪个。
+  Cookie 文件只对应一个平台，不要用 `--platform` 去切换。
+- **回退**：Cookie 文件不存在、`whoami` 失败、或要用的命令失败 → 跑 `agent-reach doctor --json`，
+  按下面三个后端继续。全部不可用就如实报告；不要替用户登录或导出 Cookie
+  （`redbook auth export` 会读浏览器，留给用户自己在终端跑）。
+
+### Agent Reach 自带的三个后端
 
 小红书有三个后端，**先跑 `agent-reach doctor --json` 看 xiaohongshu 的 `active_backend` 是哪个**，再用对应命令组。
 
