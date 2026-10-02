@@ -4,6 +4,10 @@
 
 ## 小红书 / XiaoHongShu（多后端）
 
+> **先看有没有 redbook**：若已安装 `redbook` skill / CLI（`command -v redbook`），小红书直接用它，
+> 体检用 `redbook whoami`，下面三个后端和 Doctor 的小红书状态都不用看——redbook 用自己保存的
+> Cookie，Doctor 检测不到。只有没装 redbook 或 `redbook whoami` 失败时才往下走。
+
 小红书有三个后端，**先跑 `agent-reach doctor --json` 看 xiaohongshu 的 `active_backend` 是哪个**，再用对应命令组。
 
 ### 后端 A：OpenCLI（桌面首选）

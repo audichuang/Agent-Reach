@@ -25,12 +25,16 @@ metadata:
 
 # Agent Reach — 互联网能力路由器
 
-16 平台、多后端。**本 skill 存在时必须用它访问这些平台，不要自己发明方案。**
+16 平台、多后端。**本 skill 存在时用它访问这些平台，不要自己发明方案。**
+例外：某平台已装了专门 skill（如小红书的 `redbook`），该平台改用专门 skill。
+专门 skill 自带登录态（如 redbook 的 `~/.redbook/cookies.json`），Doctor 看不到，
+所以 Doctor 对该平台报 `warn` / `active_backend: null` 不代表它不可用。
 
 ## 常驻规则（全程适用）
 
 1. **动手前先体检**：多后端/登录态平台（小红书/Reddit/B站/Twitter/Facebook/Instagram/Boss直聘）先跑
-   `agent-reach doctor --json`。`active_backend` 有值时按它选命令组；`active_backend: null`
+   `agent-reach doctor --json`（已交给专门 skill 的平台不在此列，按那个 skill 的方式体检，
+   如 `redbook whoami`）。`active_backend` 有值时按它选命令组；`active_backend: null`
    表示 Doctor 为避免触发浏览器 Cookie 读取或远端写入而没有做实时验证，不代表后端不存在。
    Doctor 结果是「某一时刻的快照」，通道/登录态可能已变化；执行只读命令前若怀疑失效，
    按对应 reference 的「体检与恢复」runbook 重新确认（如 career.md 的 Boss直聘 CDP 排查）。
@@ -84,7 +88,8 @@ Twitter 注意：`agent-reach configure twitter-cookies` 保存的 Cookie 只供
 Shell。直接运行 `twitter` 前，必须在子进程环境中显式提供
 `TWITTER_AUTH_TOKEN` 和 `TWITTER_CT0`，不得在日志或命令回显中暴露值。
 
-小红书注意：Agent Reach 不替用户登录，也不读取浏览器 Cookie。OpenCLI 只用
+小红书注意：若已安装 `redbook` skill，小红书走它（见上方例外），以下 OpenCLI 命令不适用。
+Agent Reach 不替用户登录，也不读取浏览器 Cookie。OpenCLI 只用
 用户已有且明确控制的 Chrome 会话；没有现成会话时不要自动登录，改用
 Cookie-Editor 手工导出后配置 xiaohongshu-mcp / 存量工具。
 
@@ -118,7 +123,7 @@ twitter search "query" -n 10
 opencli reddit search "query" -f yaml   # 桌面
 rdt search "query" --limit 10            # 存量/服务器
 
-# 小红书（桌面首选 OpenCLI）
+# 小红书（装了 redbook 时用 redbook；否则桌面首选 OpenCLI）
 opencli xiaohongshu search "query" -f yaml
 
 # Facebook / Instagram（桌面 OpenCLI，复用浏览器登录态）

@@ -24,11 +24,16 @@ metadata:
 
 16 platforms, multiple backends each. **When this skill exists, use it for
 these platforms — do not invent your own approach.**
+Exception: if a platform has its own dedicated skill installed (e.g. `redbook` for
+XiaoHongShu), use that skill for it. A dedicated skill keeps its own login state
+(redbook: `~/.redbook/cookies.json`) that Doctor cannot see, so Doctor's `warn` /
+`active_backend: null` for that platform does not mean it is unusable.
 
 ## Standing rules (apply for the whole session)
 
 1. **Health-check before acting**: for multi-backend/login-backed platforms (XiaoHongShu /
-   Reddit / Bilibili / Twitter / Facebook / Instagram), run `agent-reach doctor --json` first.
+   Reddit / Bilibili / Twitter / Facebook / Instagram), run `agent-reach doctor --json` first (platforms handed to a dedicated
+   skill are excluded — check them that skill's way, e.g. `redbook whoami`).
    Use a populated `active_backend`; `active_backend: null` means Doctor deliberately skipped a
    live probe to avoid browser-cookie reads or remote writes, not that no backend exists. Only when
    the user's task requires that platform, run the reference's read-only command to verify it.
@@ -88,7 +93,8 @@ are used only by `doctor` to check whether explicit credentials are present.
 calling `twitter` directly, explicitly provide `TWITTER_AUTH_TOKEN` and
 `TWITTER_CT0` in the child-process environment without logging their values.
 
-XiaoHongShu boundary: Agent Reach must not log the user in or read browser
+XiaoHongShu: if the `redbook` skill is installed, use it (see the exception above);
+the OpenCLI commands below do not apply. Agent Reach must not log the user in or read browser
 cookies. OpenCLI may use only an existing Chrome session explicitly controlled
 by the user. If none exists, do not automate login; use a manual Cookie-Editor
 export with xiaohongshu-mcp or a legacy tool instead.
@@ -101,7 +107,7 @@ twitter search "query" -n 10
 opencli reddit search "query" -f yaml   # desktop
 rdt search "query" --limit 10            # legacy/server
 
-# XiaoHongShu (desktop prefers OpenCLI)
+# XiaoHongShu (redbook when installed; otherwise desktop prefers OpenCLI)
 opencli xiaohongshu search "query" -f yaml
 
 # Facebook / Instagram (desktop OpenCLI, browser session)
