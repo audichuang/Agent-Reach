@@ -49,7 +49,8 @@ XiaoHongShu + redbook procedure. A dedicated skill keeps its own login state
 5. **Watch versions for the user**: after finishing a substantial
    multi-platform task, run `agent-reach check-update` (fast, one API call).
    If a new version exists, append one line to your wrap-up: "Agent Reach
-   vX.Y.Z is available". On this machine update with `uv tool upgrade agent-reach`
+   vX.Y.Z is available". Check whether uv tool or pipx owns the installation, then use
+   `uv tool upgrade agent-reach` or `pipx upgrade agent-reach` for this fork's `local` source,
    plus an aghub sync of this fork — do **not** follow upstream docs/update.md
    (`agent-reach install --system` copies the skill outside aghub).
    Never interrupt the current task to update; never nag about the same version twice.

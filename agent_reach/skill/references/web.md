@@ -40,8 +40,8 @@ curl -s "https://r.jina.ai/https://example.com/article"
 
 先用当前 agent 已连接的 Firecrawl MCP；工具延迟加载时先发现工具与参数。
 未连接当前会话时，使用技能自带的 `scripts/firecrawl.py`。它按本机配置调用
-本地 mcporter 或通过 SSH 调用另一台机器的 mcporter；后者读取该机已有的
-Claude/Codex MCP 配置，不把 NAS 凭证复制到调用机器。
+本地 mcporter 或通过 SSH 调用另一台机器的 mcporter；两种模式都显式指定
+专用 MCP 配置，不受当前项目同名 server 影响。SSH 模式不把 NAS 凭证复制到调用机器。
 
 以下命令从当前加载的 `SKILL.md` 所在目录执行，或把脚本路径改成该目录的绝对路径：
 
@@ -60,10 +60,18 @@ python3 scripts/firecrawl.py firecrawl_scrape --args '{"url":"https://example.co
 指定文件。先读取已有配置；不存在时从已确认的 MCP 主机建立一种连接，不覆盖已有配置：
 
 ```json
-{"transport":"ssh","ssh_host":"YOUR_EXISTING_SSH_ALIAS","server":"firecrawl"}
+{"transport":"ssh","ssh_host":"YOUR_EXISTING_SSH_ALIAS","server":"firecrawl","mcporter_config":"/absolute/remote/home/.agent-reach/firecrawl-mcp.json"}
 ```
 
-MCP 就在本机时用 `{"transport":"local","server":"firecrawl"}`。
+MCP 就在本机时用 `{"transport":"local","server":"firecrawl","mcporter_config":"/absolute/local/home/.agent-reach/firecrawl-mcp.json"}`。
+`mcporter_config` 必填，必须是执行端的绝对路径（SSH 时是远端路径，不使用 `~`）。
+旧版只有 transport/server 的配置需补此字段，否则脚本会在发请求前报错。
+在执行端将已验证的 NAS Firecrawl MCP 定义保存到这个专用文件，结构为
+`{"imports":[],"mcpServers":{"firecrawl":{"command":"…","args":[],"env":{}}}}`；
+从已有 Claude/Codex 定义复制所需 command/args/env，保留实际 API URL 与认证。
+文件仅包含目标 MCP，权限设为 0600，完整内容和凭证不进入日志或 Git。
+脚本同时固定 `--config` 与 `--root`；相对启动参数以该配置文件所在目录为基准，
+迁移原有定义时将这类路径转成执行端绝对路径。
 `ssh_host` 来自该机器已配置且获授权使用的 SSH 别名；执行端需要 mcporter 和已配置的
 Firecrawl MCP。先运行脚本 `list`，再对用户目标页运行 scrape 验证非空正文。
 缺配置时脚本报错并退出，不猜 NAS 地址、不安装服务、不自动改走云端。

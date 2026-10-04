@@ -505,7 +505,7 @@ def _install_skill(force: bool = True):
             return skill_pkg.joinpath("SKILL.md").read_text(encoding="utf-8")
 
     def _copy_skill_dir(target: str) -> str | None:
-        """Copy entire skill directory (locale-specific SKILL.md + references/)."""
+        """Copy locale-specific SKILL.md, references and executable resources."""
         try:
             if not force and os.path.exists(os.path.join(target, "SKILL.md")):
                 return "preserved"
@@ -542,6 +542,23 @@ def _install_skill(force: bool = True):
                     content = ref_file.read_text(encoding="utf-8") if hasattr(ref_file, 'read_text') else ref_file.read_text()
                     with open(os.path.join(refs_target, name), "w", encoding="utf-8") as f:
                         f.write(content)
+
+            # Traversable resources also work when the package is not a filesystem tree.
+            def copy_scripts(source, destination):
+                os.makedirs(destination, exist_ok=True)
+                for resource in source.iterdir():
+                    if resource.name == "__pycache__" or resource.name.endswith((".pyc", ".pyo")):
+                        continue
+                    dest = os.path.join(destination, resource.name)
+                    if resource.is_dir():
+                        copy_scripts(resource, dest)
+                    else:
+                        with open(dest, "wb") as f:
+                            f.write(resource.read_bytes())
+
+            scripts_pkg = skill_pkg.joinpath("scripts")
+            if scripts_pkg.is_dir():
+                copy_scripts(scripts_pkg, os.path.join(target, "scripts"))
 
             return "installed"
         except Exception as e:
