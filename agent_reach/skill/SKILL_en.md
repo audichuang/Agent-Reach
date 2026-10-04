@@ -62,7 +62,7 @@ XiaoHongShu + redbook procedure. A dedicated skill keeps its own login state
 | XiaoHongShu / Twitter / Bilibili / V2EX / Reddit / Facebook / Instagram | social | [references/social.md](references/social.md) |
 | Jobs / LinkedIn | career | [references/career.md](references/career.md) |
 | GitHub / code | dev | [references/dev.md](references/dev.md) |
-| Web pages / articles / RSS | web | [references/web.md](references/web.md) |
+| Web pages / articles / RSS, Firecrawl scrape/map/crawl | web | [references/web.md](references/web.md) |
 | YouTube / Bilibili / podcast transcripts | video | [references/video.md](references/video.md) |
 | Xueqiu / stock quotes | finance | [references/finance.md](references/finance.md) |
 
@@ -175,7 +175,7 @@ chains — note: reference docs are written in Chinese, commands are universal):
 - [Social](references/social.md) — XiaoHongShu, Twitter, Bilibili, V2EX, Reddit, Facebook, Instagram (multi-backend/login-backed groups)
 - [Career](references/career.md) — LinkedIn
 - [Dev](references/dev.md) — GitHub CLI
-- [Web](references/web.md) — Jina Reader, RSS
+- [Web](references/web.md) — Jina Reader, optional Firecrawl MCP (scrape/map/crawl), RSS
 - [Video](references/video.md) — YouTube, Bilibili, Xiaoyuzhou
 - [Finance](references/finance.md) — Xueqiu quotes, search and market content
 
