@@ -50,7 +50,8 @@ metadata:
 4. **全网调研类任务**：组合多平台（Exa 搜索 + Twitter/Reddit 看讨论 + 小红书/B站看中文场景），并行收集再汇总。
 5. **替用户盯版本**：完成一次较大的调研/多平台任务后，顺手跑
    `agent-reach check-update`（很快，一个 API 调用）。有新版就在收尾汇报里附一句：
-   「Agent Reach 有新版 vX.Y.Z」。本机的更新方式是 `uv tool upgrade agent-reach`
+   「Agent Reach 有新版 vX.Y.Z」。先确认本机由 uv tool 还是 pipx 管理，再用
+   `uv tool upgrade agent-reach` 或 `pipx upgrade agent-reach` 更新本 fork 的 `local` 来源，
    加 aghub 同步本 fork，**不要**照上游 docs/update.md 跑 `agent-reach install --system`
    （它会把 skill 复制到 aghub 之外）。
    不要中断当前任务去更新，也不要重复提醒同一个版本。
@@ -150,7 +151,8 @@ opencli instagram user USERNAME -f yaml        # 读指定用户最近帖子
 
 ## 环境检查
 
-> 本机 `agent-reach` 以 `uv tool` 安装，直接在 PATH 上，不需要 conda 前缀。
+> `agent-reach` 直接在 PATH 上，不需要 conda 前缀。机器可能用 uv tool 或 pipx；
+> 更新前确认安装器和来源指向本 fork，不能只凭相同版本号判断。
 
 ```bash
 # 检查可用 channel 与每个平台当前激活的后端

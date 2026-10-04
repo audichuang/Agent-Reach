@@ -4,6 +4,8 @@
 import importlib.resources
 import os
 import re
+import subprocess
+import sys
 import tempfile
 import unittest
 from argparse import Namespace
@@ -15,6 +17,22 @@ from agent_reach.cli import _cmd_skill, _install_skill, _uninstall_skill
 
 class TestSkillCommand(unittest.TestCase):
     """Test skill install and uninstall via CLI helpers."""
+
+    def test_fresh_and_forced_install_include_runnable_firecrawl_script(self):
+        with tempfile.TemporaryDirectory() as tmpdir:
+            env = os.environ.copy()
+            env.pop("OPENCLAW_HOME", None)
+            env["HOME"] = tmpdir
+            with patch.dict(os.environ, env, clear=True):
+                for force in (False, True):
+                    self.assertTrue(_install_skill(force=force))
+                    script = Path(tmpdir) / ".agents/skills/agent-reach/scripts/firecrawl.py"
+                    self.assertTrue(script.is_file())
+                    result = subprocess.run(
+                        [sys.executable, str(script), "--help"], capture_output=True, text=True,
+                    )
+                    self.assertEqual(result.returncode, 0, result.stderr)
+                    self.assertIn("firecrawl_scrape", result.stdout)
 
     def test_skill_resources_include_both_locales(self):
         """Package resources should expose both default and English skill markdown files."""

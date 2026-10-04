@@ -23,6 +23,9 @@ def load_config(path):
         raise ValueError("connection config must be a JSON object")
     if config.get("transport") not in ("local", "ssh"):
         raise ValueError("transport must be local or ssh")
+    mcporter_config = config.get("mcporter_config")
+    if not isinstance(mcporter_config, str) or not Path(mcporter_config).is_absolute():
+        raise ValueError("mcporter_config must be an absolute path on the execution host")
     server = config.get("server", "firecrawl")
     if not isinstance(server, str) or not re.fullmatch(r"[A-Za-z0-9_][A-Za-z0-9_-]*", server):
         raise ValueError("server must be an MCP server name")
@@ -35,10 +38,13 @@ def load_config(path):
 
 def command(config, tool, arguments, timeout_ms):
     server = config.get("server", "firecrawl")
+    # Explicit config bypasses cwd-dependent project and editor discovery.
+    cmd = ["mcporter", "--config", config["mcporter_config"],
+           "--root", str(Path(config["mcporter_config"]).parent)]
     if tool == "list":
-        cmd = ["mcporter", "list", server, "--schema"]
+        cmd += ["list", server, "--schema"]
     else:
-        cmd = ["mcporter", "call", f"{server}.{tool}", "--args", json.dumps(arguments)]
+        cmd += ["call", f"{server}.{tool}", "--args", json.dumps(arguments)]
     cmd += ["--timeout", str(timeout_ms), "--no-oauth"]
     if config["transport"] == "ssh":
         # SSH passes its command through a remote shell: quote every argument once.
