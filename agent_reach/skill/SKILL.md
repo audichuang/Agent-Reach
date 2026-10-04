@@ -23,10 +23,10 @@ metadata:
   homepage: https://github.com/Panniantong/Agent-Reach
 ---
 
-<!-- Fork: audichuang/Agent-Reach 的 local 分支，fork 自 Panniantong/Agent-Reach main
-     (a19a171) · 2026-10-03。分歧：专门 skill 优先（小红书→redbook）；本机安装方式
-     （uv tool，非 conda）；更新走 uv + aghub 而非 docs/update.md。同步上游：
-     gh repo sync audichuang/Agent-Reach，再把 local rebase 到 main。 -->
+<!-- 私有 downstream: audichuang/Agent-Reach 的 local 分支，派生自
+     Panniantong/Agent-Reach main (a19a171)。分歧：专门 skill 优先、uv/pipx 安装、
+     aghub 同步与 Firecrawl MCP 路由。现为独立仓库；同步上游用 git fetch upstream，
+     确认有新提交后再把 local rebase 到 upstream/main。 -->
 
 # Agent Reach — 互联网能力路由器
 
@@ -55,6 +55,8 @@ metadata:
    加 aghub 同步本 fork，**不要**照上游 docs/update.md 跑 `agent-reach install --system`
    （它会把 skill 复制到 aghub 之外）。
    不要中断当前任务去更新，也不要重复提醒同一个版本。
+   此来源为私有 GitHub 仓库，同步时使用已授权的 GitHub 凭证；认证失败应报告，
+   不把来源切回上游公开版。
 
 ## 路由表
 

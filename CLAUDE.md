@@ -38,7 +38,7 @@ Repo: github.com/Panniantong/Agent-Reach | License: MIT | Version: 1.5.0
 - NEVER modify upstream open source projects' source code
 - Agent Reach is a "glue layer" — only route and call, don't reimagine
 - Version in THREE places must match: `pyproject.toml`, `__init__.py`, `tests/test_cli.py`
-- Always new branch for changes, PR to main, never push to main directly
+- Use a new branch for changes and target PRs to `local`, this private downstream's deployment branch. Keep `main` for upstream history.
 - Run `pytest tests/ -v` before committing — all tests must pass
 - Cookie-based auth (Twitter, XHS): use Cookie-Editor export method only, no QR scan
 - XHS login: Cookie-Editor browser export only (QR will hang)

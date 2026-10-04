@@ -54,6 +54,8 @@ XiaoHongShu + redbook procedure. A dedicated skill keeps its own login state
    plus an aghub sync of this fork — do **not** follow upstream docs/update.md
    (`agent-reach install --system` copies the skill outside aghub).
    Never interrupt the current task to update; never nag about the same version twice.
+   This is a private, standalone GitHub downstream. Use authorized GitHub credentials
+   for syncing; report authentication failures instead of switching to the public upstream.
 
 ## Routing table
 
