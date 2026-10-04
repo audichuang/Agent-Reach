@@ -66,6 +66,9 @@ XiaoHongShu + redbook procedure. A dedicated skill keeps its own login state
 | YouTube / Bilibili / podcast transcripts | video | [references/video.md](references/video.md) |
 | Xueqiu / stock quotes | finance | [references/finance.md](references/finance.md) |
 
+If Firecrawl is not attached to this session, use the bundled [scripts/firecrawl.py](scripts/firecrawl.py)
+to reach a local or SSH-hosted MCP. See [Web](references/web.md) for connection setup and commands.
+
 ## Zero-config quick commands
 
 ```bash

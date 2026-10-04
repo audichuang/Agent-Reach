@@ -39,11 +39,15 @@ curl -s "https://r.jina.ai/https://example.com/article"
 ## Firecrawl (可选 MCP)
 
 先用当前 agent 已连接的 Firecrawl MCP；工具延迟加载时先发现工具与参数。
-CLI 场景可用 mcporter，它也可能从 Claude/Codex 配置导入服务：
+未连接当前会话时，使用技能自带的 `scripts/firecrawl.py`。它按本机配置调用
+本地 mcporter 或通过 SSH 调用另一台机器的 mcporter；后者读取该机已有的
+Claude/Codex MCP 配置，不把 NAS 凭证复制到调用机器。
+
+以下命令从当前加载的 `SKILL.md` 所在目录执行，或把脚本路径改成该目录的绝对路径：
 
 ```bash
-mcporter list firecrawl --schema
-mcporter call firecrawl.firecrawl_scrape --args '{"url":"https://example.com","formats":["markdown"]}'
+python3 scripts/firecrawl.py list
+python3 scripts/firecrawl.py firecrawl_scrape --args '{"url":"https://example.com","formats":["markdown"]}'
 ```
 
 以实际 server 名与 schema 为准。只有非空目标正文、正确来源 URL 和非错误结果
@@ -52,14 +56,28 @@ mcporter call firecrawl.firecrawl_scrape --args '{"url":"https://example.com","f
 
 ### 连接与自架边界
 
+脚本只需 Python 标准库，读取 `~/.agent-reach/firecrawl.json`，也可用 `--config`
+指定文件。先读取已有配置；不存在时从已确认的 MCP 主机建立一种连接，不覆盖已有配置：
+
+```json
+{"transport":"ssh","ssh_host":"YOUR_EXISTING_SSH_ALIAS","server":"firecrawl"}
+```
+
+MCP 就在本机时用 `{"transport":"local","server":"firecrawl"}`。
+`ssh_host` 来自该机器已配置且获授权使用的 SSH 别名；执行端需要 mcporter 和已配置的
+Firecrawl MCP。先运行脚本 `list`，再对用户目标页运行 scrape 验证非空正文。
+缺配置时脚本报错并退出，不猜 NAS 地址、不安装服务、不自动改走云端。
+脚本只转交 scrape/map/crawl/status 参数，原样输出结果；退出码为零仍需验收正文。
+`--timeout` 单位为毫秒，默认 60000；超时不重提任务。
+
 `firecrawl-mcp` 是客户端桥接进程；NAS 上的 Firecrawl API 是它的后端。
 自架连接读取 MCP 进程环境中的 `FIRECRAWL_API_URL`，需要认证时另配
 `FIRECRAWL_API_KEY`。API 的 HTTP 地址不是 MCP endpoint，不能直接当作
 `mcporter --http-url` 的地址。主机地址与密钥留在机器本地配置，不写入 skill。
 
-配置只在另一台机器时，使用已获授权的 SSH 别名在该机执行相同 mcporter 命令；
-本机未发现服务不代表远端没装。没有可用配置时先用其他阅读后端，安装/连接配置
-作为单独步骤处理，不擅自改 NAS 部署。
+没有可用连接时按任务约束选择其他阅读后端，安装/连接配置作为单独步骤处理，
+不擅自改 NAS 部署。技能文件与连接配置分开分发：另一台机器装好技能后，
+仍需建立它自己的本地或 SSH 连接，并实际抓页验收。
 
 MCP 暴露工具不等于自架 API 支持它们。分别验证 scrape、map、crawl；
 search、JSON/LLM 提取、agent 等功能可能需要额外服务或凭证，不能用抓页成功
@@ -71,9 +89,9 @@ search、JSON/LLM 提取、agent 等功能可能需要额外服务或凭证，�
 以下为参数示例；将 URL、路径与页数收窄到用户任务范围：
 
 ```bash
-mcporter call firecrawl.firecrawl_map --args '{"url":"https://example.com","limit":20,"includeSubdomains":false}'
-mcporter call firecrawl.firecrawl_crawl --args '{"url":"https://example.com/docs/","includePaths":["^/docs/.*"],"limit":10,"allowExternalLinks":false,"allowSubdomains":false,"scrapeOptions":{"formats":["markdown"]}}'
-mcporter call firecrawl.firecrawl_check_crawl_status --args '{"id":"RETURNED_CRAWL_ID"}'
+python3 scripts/firecrawl.py firecrawl_map --args '{"url":"https://example.com","limit":20,"includeSubdomains":false}'
+python3 scripts/firecrawl.py firecrawl_crawl --args '{"url":"https://example.com/docs/","includePaths":["^/docs/.*"],"limit":10,"allowExternalLinks":false,"allowSubdomains":false,"scrapeOptions":{"formats":["markdown"]}}'
+python3 scripts/firecrawl.py firecrawl_check_crawl_status --args '{"id":"RETURNED_CRAWL_ID"}'
 ```
 
 crawl 可能等待任务完成才返回，也可能返回任务 ID；按实际结果处理。保留 ID，
