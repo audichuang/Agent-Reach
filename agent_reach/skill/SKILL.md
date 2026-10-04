@@ -67,6 +67,9 @@ metadata:
 | YouTube/B站/播客字幕 | video | [references/video.md](references/video.md) |
 | 雪球/股票行情 | finance | [references/finance.md](references/finance.md) |
 
+Firecrawl 未挂载到当前会话时，用随技能分发的 [scripts/firecrawl.py](scripts/firecrawl.py)
+连接本机或 SSH 主机上的 MCP；连接配置与命令见 [网页阅读](references/web.md)。
+
 ## 零配置快速命令
 
 ```bash
