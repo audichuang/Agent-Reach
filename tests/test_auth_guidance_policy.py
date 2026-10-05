@@ -59,7 +59,7 @@ def test_xiaohongshu_opencli_and_export_boundaries_are_truthful():
     boundary_docs = (
         ROOT / "docs" / "install.md",
         ROOT / "agent_reach" / "guides" / "setup-xiaohongshu.md",
-        ROOT / "agent_reach" / "skill" / "references" / "social.md",
+        ROOT / "agent_reach" / "skill" / "references" / "xiaohongshu.md",
     )
     for path in boundary_docs:
         text = path.read_text(encoding="utf-8")
@@ -84,7 +84,7 @@ def test_twitter_operational_docs_explain_the_environment_boundary():
         ROOT / "agent_reach" / "guides" / "setup-twitter.md",
         ROOT / "agent_reach" / "skill" / "SKILL.md",
         ROOT / "agent_reach" / "skill" / "SKILL_en.md",
-        ROOT / "agent_reach" / "skill" / "references" / "social.md",
+        ROOT / "agent_reach" / "skill" / "references" / "twitter.md",
     )
 
     for path in operational_docs:
@@ -226,8 +226,12 @@ def test_skill_routes_finance_and_documents_opencli_discovery():
     for path in skills:
         text = path.read_text(encoding="utf-8")
         assert "references/finance.md" in text, path.relative_to(ROOT)
-        assert "opencli list" in text, path.relative_to(ROOT)
-        assert "--help" in text, path.relative_to(ROOT)
+        assert "references/environment.md" in text, path.relative_to(ROOT)
+
+    environment = ROOT / "agent_reach" / "skill" / "references" / "environment.md"
+    text = environment.read_text(encoding="utf-8")
+    assert "opencli list" in text
+    assert "--help" in text
 
     finance = ROOT / "agent_reach" / "skill" / "references" / "finance.md"
     text = finance.read_text(encoding="utf-8")

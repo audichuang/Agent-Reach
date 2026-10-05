@@ -2,6 +2,13 @@
 
 YouTube、B站、小宇宙播客的字幕和转录。
 
+## Contents
+
+- YouTube：字幕与回退
+- B站：bili-cli / OpenCLI
+- 小宇宙：播客转写
+- 选择指南
+
 ## YouTube (yt-dlp)
 
 ### 获取视频元数据

@@ -1,0 +1,402 @@
+{
+  "date": "2026-10-05",
+  "model": "Claude CLI sonnet",
+  "cli_version": "2.1.289",
+  "method": "First-tool selection proxy; three isolated trials per query. Neighbors use their real discovery metadata but no credentials/resources. Body tests are read-only planning simulations.",
+  "neighbors": [
+    "nas-container",
+    "ego-browser",
+    "notebooklm",
+    "spreadsheets"
+  ],
+  "comparison": {
+    "entry_lines": {
+      "old": 191,
+      "new": 42,
+      "reduction_pct": 78.0
+    },
+    "entry_bytes": {
+      "old": 10895,
+      "new": 2575,
+      "reduction_pct": 76.4
+    },
+    "description_chars": {
+      "old": 922,
+      "new": 224,
+      "reduction_pct": 75.7
+    },
+    "trigger": {
+      "old": {
+        "passed_queries": 24,
+        "queries": 26,
+        "correct_first_tool_choices": 72,
+        "choices": 78
+      },
+      "new": {
+        "passed_queries": 26,
+        "queries": 26,
+        "correct_first_tool_choices": 78,
+        "choices": 78
+      }
+    },
+    "body": {
+      "old": {
+        "passed": 23,
+        "total": 24,
+        "read_chars": 120379,
+        "cost_usd": 0.6321364
+      },
+      "new": {
+        "passed": 24,
+        "total": 24,
+        "read_chars": 36368,
+        "cost_usd": 0.3653814
+      }
+    },
+    "limits": [
+      "Claude/Sonnet first-tool selection proxy with four neighboring discovery cards; not a Codex-native trigger measurement.",
+      "Body checks are read-only planning simulations, not live platform calls.",
+      "Descriptor candidates were iterated on these queries; results are regression evidence, not a generalization guarantee.",
+      "Read-character counts measure the tested body variants; final descriptor selection was evaluated separately."
+    ]
+  },
+  "trigger_cases": [
+    {
+      "query": "看看最近 Reddit 和 X 上開發者怎麼評價 Cursor，找幾則具體原文，不要只給產品介紹。",
+      "should_trigger": true,
+      "old_triggers": 3,
+      "new_triggers": 3,
+      "runs": 3
+    },
+    {
+      "query": "幫我全網調研家用 NAS 的備份方案，比較一般網頁和使用者討論，附上來源。",
+      "should_trigger": true,
+      "old_triggers": 3,
+      "new_triggers": 3,
+      "runs": 3
+    },
+    {
+      "query": "幫我在小紅書搜露營推車的使用心得，整理幾則真實筆記和缺點。",
+      "should_trigger": true,
+      "old_triggers": 3,
+      "new_triggers": 3,
+      "runs": 3
+    },
+    {
+      "query": "幫我在 B站 找三支講 PostgreSQL 查詢效能的影片，讀內容後列出各自示範的方法。",
+      "should_trigger": true,
+      "old_triggers": 3,
+      "new_triggers": 3,
+      "runs": 3
+    },
+    {
+      "query": "幫我讀這支 YouTube 影片的字幕並附重點時間：https://www.youtube.com/watch?v=example123，沒有人工字幕時再找自動字幕。",
+      "should_trigger": true,
+      "old_triggers": 3,
+      "new_triggers": 3,
+      "runs": 3
+    },
+    {
+      "query": "幫我查 LinkedIn 上目前有哪些遠端資料工程師職缺，讀完整職缺內容比較需求。",
+      "should_trigger": true,
+      "old_triggers": 3,
+      "new_triggers": 3,
+      "runs": 3
+    },
+    {
+      "query": "幫我在 Boss直聘 找上海的大模型工程師職缺，讀 JD 並列出技能要求。",
+      "should_trigger": true,
+      "old_triggers": 3,
+      "new_triggers": 3,
+      "runs": 3
+    },
+    {
+      "query": "讀取 https://example.org/feed.xml 最近十篇 RSS 文章，列出日期與原文連結。",
+      "should_trigger": true,
+      "old_triggers": 2,
+      "new_triggers": 3,
+      "runs": 3
+    },
+    {
+      "query": "幫我查雪球上台積電 ADR 的近期討論與行情頁，附原文來源。",
+      "should_trigger": true,
+      "old_triggers": 3,
+      "new_triggers": 3,
+      "runs": 3
+    },
+    {
+      "query": "用 Firecrawl 找這個文件網站的站內頁面，再抓 /guide 下最多十頁正文：https://docs.example.org。",
+      "should_trigger": true,
+      "old_triggers": 0,
+      "new_triggers": 3,
+      "runs": 3
+    },
+    {
+      "query": "把我貼在下面的 X 推文翻成繁體中文，不用上網，也不用查作者。原文：Today we shipped our new parser.",
+      "should_trigger": false,
+      "old_triggers": 0,
+      "new_triggers": 0,
+      "runs": 3
+    },
+    {
+      "query": "把本機 linkedin-jobs.csv 的 salary 欄拆成 min/max，輸出新 CSV；資料已齊，不需要查 LinkedIn。",
+      "should_trigger": false,
+      "old_triggers": 0,
+      "new_triggers": 0,
+      "runs": 3
+    },
+    {
+      "query": "在這個專案用 CSS 畫一個 GitHub 風格的登入按鈕，不需要連 GitHub。",
+      "should_trigger": false,
+      "old_triggers": 0,
+      "new_triggers": 0,
+      "runs": 3
+    },
+    {
+      "query": "只修改 README：把 https://github.com/acme/old 文字換成 https://github.com/acme/new，不要開網頁。",
+      "should_trigger": false,
+      "old_triggers": 0,
+      "new_triggers": 0,
+      "runs": 3
+    },
+    {
+      "query": "SSH 到 Synology 檢查並更新 Firecrawl 的 Docker 容器，已有 NAS 管理技能。",
+      "should_trigger": false,
+      "old_triggers": 0,
+      "new_triggers": 0,
+      "runs": 3
+    },
+    {
+      "query": "幫我把 GitHub 上這個 repo 改成 private，保留網址與 Git 歷史。",
+      "should_trigger": false,
+      "old_triggers": 0,
+      "new_triggers": 0,
+      "runs": 3
+    },
+    {
+      "query": "請在 LinkedIn 網站填好這份求職表單，但先不要按送出；我已開著瀏覽器。",
+      "should_trigger": false,
+      "old_triggers": 0,
+      "new_triggers": 0,
+      "runs": 3
+    },
+    {
+      "query": "把下方文案發布到我的 Facebook，不需要搜尋資料。",
+      "should_trigger": false,
+      "old_triggers": 0,
+      "new_triggers": 0,
+      "runs": 3
+    },
+    {
+      "query": "用 NotebookLM 把筆記本裡已匯入的 YouTube 來源做成 podcast。",
+      "should_trigger": false,
+      "old_triggers": 0,
+      "new_triggers": 0,
+      "runs": 3
+    },
+    {
+      "query": "修復本機 Python 專案的 RSS 日期解析測試，輸入 fixture 已附在 tests 裡，不需要抓網路資料。",
+      "should_trigger": false,
+      "old_triggers": 0,
+      "new_triggers": 0,
+      "runs": 3
+    },
+    {
+      "query": "找 GitHub 上兩個公開的 RSS parser 專案，讀程式碼比較日期解析策略，給我來源。",
+      "should_trigger": true,
+      "old_triggers": 1,
+      "new_triggers": 3,
+      "runs": 3
+    },
+    {
+      "query": "幫我配 Boss直聘 的讀取工具，之後要查職缺；不需要替我投履歷。",
+      "should_trigger": true,
+      "old_triggers": 3,
+      "new_triggers": 3,
+      "runs": 3
+    },
+    {
+      "query": "Read the newest entries from these two RSS feeds and compare the topics, linking each original article: https://example.org/one.xml and https://example.org/two.xml.",
+      "should_trigger": true,
+      "old_triggers": 3,
+      "new_triggers": 3,
+      "runs": 3
+    },
+    {
+      "query": "幫我讀 V2EX 的 PostgreSQL 討論，連同回覆整理幾種不同意見與原文連結。",
+      "should_trigger": true,
+      "old_triggers": 3,
+      "new_triggers": 3,
+      "runs": 3
+    },
+    {
+      "query": "下面是已下載的 RSS XML，幫我解析成表格就好，不要上網：<rss><channel><item><title>Release</title></item></channel></rss>",
+      "should_trigger": false,
+      "old_triggers": 0,
+      "new_triggers": 0,
+      "runs": 3
+    },
+    {
+      "query": "這份本機 LinkedIn 表單元件測試失敗，幫我修 TypeScript 型別，完全不需要操作 LinkedIn 網站。",
+      "should_trigger": false,
+      "old_triggers": 0,
+      "new_triggers": 0,
+      "runs": 3
+    }
+  ],
+  "english_validation": {
+    "total": 6,
+    "passed": 6,
+    "failed": 0
+  },
+  "body": {
+    "evaluated": "Only body/<case>/old and body/<case>/new; initial-old/initial-new ignored. This is simulated planning evaluation; no platform commands or live retrieval were performed.",
+    "cases": [
+      {
+        "case": "xhs-availability",
+        "old": {
+          "passed": 3,
+          "failed": 0,
+          "total": 3,
+          "pass_rate": 1.0
+        },
+        "new": {
+          "passed": 3,
+          "failed": 0,
+          "total": 3,
+          "pass_rate": 1.0
+        }
+      },
+      {
+        "case": "xhs-query",
+        "old": {
+          "passed": 3,
+          "failed": 0,
+          "total": 3,
+          "pass_rate": 1.0
+        },
+        "new": {
+          "passed": 3,
+          "failed": 0,
+          "total": 3,
+          "pass_rate": 1.0
+        }
+      },
+      {
+        "case": "reddit-regression",
+        "old": {
+          "passed": 3,
+          "failed": 1,
+          "total": 4,
+          "pass_rate": 0.75
+        },
+        "new": {
+          "passed": 4,
+          "failed": 0,
+          "total": 4,
+          "pass_rate": 1.0
+        }
+      },
+      {
+        "case": "xhs-missing-cookie",
+        "old": {
+          "passed": 2,
+          "failed": 0,
+          "total": 2,
+          "pass_rate": 1.0
+        },
+        "new": {
+          "passed": 2,
+          "failed": 0,
+          "total": 2,
+          "pass_rate": 1.0
+        }
+      },
+      {
+        "case": "twitter-environment",
+        "old": {
+          "passed": 3,
+          "failed": 0,
+          "total": 3,
+          "pass_rate": 1.0
+        },
+        "new": {
+          "passed": 3,
+          "failed": 0,
+          "total": 3,
+          "pass_rate": 1.0
+        }
+      },
+      {
+        "case": "boss-recovery",
+        "old": {
+          "passed": 3,
+          "failed": 0,
+          "total": 3,
+          "pass_rate": 1.0
+        },
+        "new": {
+          "passed": 3,
+          "failed": 0,
+          "total": 3,
+          "pass_rate": 1.0
+        }
+      },
+      {
+        "case": "firecrawl-timeout",
+        "old": {
+          "passed": 2,
+          "failed": 0,
+          "total": 2,
+          "pass_rate": 1.0
+        },
+        "new": {
+          "passed": 2,
+          "failed": 0,
+          "total": 2,
+          "pass_rate": 1.0
+        }
+      },
+      {
+        "case": "ordinary-web",
+        "old": {
+          "passed": 2,
+          "failed": 0,
+          "total": 2,
+          "pass_rate": 1.0
+        },
+        "new": {
+          "passed": 2,
+          "failed": 0,
+          "total": 2,
+          "pass_rate": 1.0
+        }
+      },
+      {
+        "case": "xueqiu-auth",
+        "old": {
+          "passed": 2,
+          "failed": 0,
+          "total": 2,
+          "pass_rate": 1.0
+        },
+        "new": {
+          "passed": 2,
+          "failed": 0,
+          "total": 2,
+          "pass_rate": 1.0
+        }
+      }
+    ],
+    "important_failures_or_regressions": [
+      {
+        "case": "reddit-regression",
+        "version": "old",
+        "issue": "The first Reddit search is proposed before doctor; doctor is deferred until OpenCLI fails. The new version orders doctor before first search."
+      }
+    ],
+    "main_boundaries_retained": "The rubric boundaries are retained: no fabricated retrieval claims; no credential or cookie-store extraction; user-controlled browser-session constraints; Xueqiu Cookie import remains within the explicitly authorized xueqiu.com domain; and Boss stops automatic refresh, login, and retry on ENVIRONMENT_RISK. The newer Boss answer allows a retry only after the user confirms the page is clear and agrees, which satisfies the rubric wording.",
+    "rubric_feedback": "The original Reddit rubric checks backend choice and session safety but not doctor ordering. A separate sequence expectation was added so mentioning doctor after a failed search cannot pass. The other rubrics meaningfully distinguish the safety outcomes reviewed.",
+    "review_note": "The Boss ENVIRONMENT_RISK criterion prohibits automatic retries. Step 7 in new asks for user agreement before a single retry, so it passes; no new Boss regression is supported by this rubric."
+  }
+}
