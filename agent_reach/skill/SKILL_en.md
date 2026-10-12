@@ -1,7 +1,7 @@
 ---
 name: agent-reach
 description: >
-  Routes internet research, search and external-link reading through installed tools. Use before fetching web/RSS, GitHub, XiaoHongShu, X/Twitter, Reddit, Facebook, Instagram, V2EX, LinkedIn/Boss Zhipin, YouTube, Bilibili, Xiaoyuzhou, Xueqiu or Firecrawl content, and for reader setup. Dedicated platform skills take priority. Excludes supplied-content processing, code edits, posting, forms and service deployment.
+  Reads and searches platforms that need dedicated CLI/MCP readers: X/Twitter, Reddit, Bilibili, V2EX, Xiaoyuzhou podcasts, Xueqiu, Boss Zhipin/LinkedIn, Facebook/Instagram, XiaoHongShu, plus Firecrawl scrapes and site crawls. Also installs those readers, configures their cookies and runs doctor on them. Plain web search and URL reads stay with built-in tools; platforms with their own skill go to that skill.
 metadata:
   homepage: https://github.com/Panniantong/Agent-Reach
 ---
@@ -17,8 +17,8 @@ Select an internet-reading backend and call its tools directly. Read only the re
   dedicated-skill attempt. A `warn` or `active_backend: null` is not proof of failure; check the platform reference.
 - State the platform/backend, use retrieved content and cite its sources; identify content you could not obtain.
 - Users handle login and challenges. Follow each platform reference's authorization rules for credentials and existing sessions.
-- Follow the reference's retry and stop conditions. Version checks after substantial research, installation and
-  updates are covered in [environment.md](references/environment.md); do not interrupt research to upgrade Agent Reach.
+- Follow the reference's retry and stop conditions. After substantial research, check versions per
+  [environment.md](references/environment.md); never upgrade mid-research.
 
 ## Read by intent
 
@@ -37,6 +37,3 @@ Select an internet-reading backend and call its tools directly. Read only the re
 | YouTube, Bilibili and Xiaoyuzhou Podcast transcripts | [video.md](references/video.md) |
 | Xueqiu quotes and discussions | [finance.md](references/finance.md) |
 | Unavailable tools, adapter discovery, installation or updates | [environment.md](references/environment.md) |
-
-When Firecrawl is not attached to the session, use the bundled [firecrawl.py](scripts/firecrawl.py).
-Connection setup and success criteria are in the Firecrawl reference above.
