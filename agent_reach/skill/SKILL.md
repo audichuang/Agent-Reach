@@ -1,7 +1,7 @@
 ---
 name: agent-reach
 description: >
-  Use before internet research, source search, or reading external links/RSS. 路由网页、GitHub、小红书、X/Twitter、Reddit、Facebook、Instagram、V2EX、LinkedIn/Boss直聘、YouTube、B站、小宇宙、雪球与 Firecrawl；也处理读取工具配置。专门平台技能优先。已提供材料加工、代码修改、发帖填表及服务部署不触发。
+  读取或搜索需专用 CLI/MCP 的平台：X/推特、Reddit、B站、V2EX、小宇宙播客、雪球、Boss直聘/LinkedIn、Facebook/Instagram、小红书/小紅書，以及 Firecrawl 抓页/爬站；也负责这些读取工具的安装、Cookie 配置与 doctor 诊断。普通网页搜索、读 URL 用内置工具；有专门技能的平台交给该技能。
 metadata:
   homepage: https://github.com/Panniantong/Agent-Reach
 ---
@@ -17,8 +17,8 @@ metadata:
   `active_backend: null` 或 `warn` 不代表不可用，按平台 reference 复核。
 - 说明使用的平台与后端；从实际取得的内容归纳并附来源，未取得的内容如实说明。
 - 登录与验证码由用户处理；凭据和现有会话按平台 reference 规定的授权方式使用。
-- 失败按对应 reference 的重试与停止条件处理。大型调研结束时的版本检查、安装和更新见
-  [环境维护](references/environment.md)，不因发现新版而中断调研升级 Agent Reach。
+- 失败按对应 reference 的重试与停止条件处理。大型调研结束时按
+  [environment.md](references/environment.md) 检查版本，不在调研中升级。
 
 ## 按需求读取
 
@@ -37,6 +37,3 @@ metadata:
 | YouTube、B站、小宇宙字幕与转写 | [video.md](references/video.md) |
 | 雪球行情与讨论 | [finance.md](references/finance.md) |
 | 工具不可用、适配器发现、安装或版本更新 | [environment.md](references/environment.md) |
-
-Firecrawl 未连接当前会话时，可用随技能安装的 [firecrawl.py](scripts/firecrawl.py)；
-连接配置与验收条件见上表的 Firecrawl reference。
