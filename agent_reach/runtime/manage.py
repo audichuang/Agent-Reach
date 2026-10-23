@@ -462,8 +462,15 @@ def _remove(path: Path) -> None:
         shutil.rmtree(path)
 
 
+def _externally_managed(path: Path) -> bool:
+    """Downstream: a symlink to a real agent-reach skill folder (aghub) owns this path."""
+    return path.is_symlink() and _is_our_copy(Path(os.path.realpath(path)))
+
+
 def _write_real_copy(text: str) -> Path:
     real = skill_dir()
+    if _externally_managed(real):
+        return real
     if (real / "SKILL.md").exists() and not _is_our_copy(real):
         raise ReachError(BAD_INPUT, "A different skill already occupies the Reach instruction path; left untouched")
     _write_copy(real, text)

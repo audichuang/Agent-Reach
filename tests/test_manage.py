@@ -805,3 +805,16 @@ def test_upgrade_installs_downstream_branch_not_upstream_release():
     cmd = manage.upgrade_command("9.9.9")
     assert cmd[-1] == "git+https://github.com/audichuang/Agent-Reach.git@local"
     assert "Panniantong" not in " ".join(cmd)
+
+
+def test_skill_leaves_an_aghub_managed_link_alone(env):
+    home = home_dir()
+    managed = home / ".aghub" / "agent-reach"
+    _seed_our_copy(managed)
+    before = (managed / "SKILL.md").read_text(encoding="utf-8")
+    for d in (".agents/skills", ".claude/skills"):
+        (home / d).mkdir(parents=True)
+        (home / d / "agent-reach").symlink_to(managed, target_is_directory=True)
+    result = manage.place_skill()
+    assert (managed / "SKILL.md").read_text(encoding="utf-8") == before
+    assert result["not_linked"] == []
