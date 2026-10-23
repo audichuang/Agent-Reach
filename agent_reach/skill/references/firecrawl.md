@@ -1,53 +1,34 @@
-# Firecrawl MCP
+# Firecrawl
 
-## 使用入口
+用户点名 Firecrawl、要站内 URL 列表或多页正文，或 web read 只拿到验证页/空壳时读这份。
 
-优先用当前会话已连接的 Firecrawl MCP（延迟加载时先发现工具与参数）。未连接时用技能自带的
-`scripts/firecrawl.py`（从 `SKILL.md` 所在目录执行，或用绝对路径）：
+## 动作
 
 ```bash
-python3 scripts/firecrawl.py list
-python3 scripts/firecrawl.py firecrawl_scrape --args '{"url":"https://example.com","formats":["markdown"]}'
+agent-reach firecrawl scrape <链接>                       # 渲染后的 Markdown
+agent-reach firecrawl map <站点> --limit 20               # 只找 URL
+agent-reach firecrawl crawl <起点> --limit 10 --include '^/docs/.*'
+agent-reach firecrawl status <crawl 任务 ID>
 ```
 
-- 以实际 server 名与 schema 为准。成功 = 非空目标正文 + 正确来源 URL + 非错误结果；工具列表、HTTP 200、空正文、验证码页都不算。脚本退出码为零仍需验收正文。
-- 渲染不完整时用 schema 里的 `waitFor` 等参数；不用交互动作登录或提交表单。
-- 脚本只转交 scrape/map/crawl/check_crawl_status 参数并原样输出。
-- `--timeout` 单位毫秒，默认 60000；超时不重提任务。
+- 单页用 scrape；只要 URL 用 map；要多页正文才 crawl。URL、路径、页数收窄到任务需要的范围。
+- 成功 = 非空正文 + 正确来源 URL；空正文、验证码页不算。
+- crawl 可能直接返回页面，也可能只返回任务 ID（在 `items[].raw.id`）。保留 ID，用 `status` 查同一任务，不重复提交。`TIMEOUT` 且没拿到 ID 时，结果未知：照实报告，不重提、不改用别的采集方式。
+- 完成后说明实际覆盖了哪些页，对照 `raw.status`、`raw.total`。
+- map 空列表只表示本次没发现 URL；可从目标页链接或已知 sitemap 逐页 scrape。crawl 失败时对已知 URL 有界逐页 scrape，并说明覆盖不足，不能当成整站采集。
+- 用户指定只用 Firecrawl 时，失败就报告，不静默改走其他服务。
 
 ## 连接配置
 
-脚本只需 Python 标准库，读 `~/.agent-reach/firecrawl.json`（或 `--config`），调用本地 mcporter 或经 SSH 调用远端 mcporter，固定 `--config` 与 `--root`，不受项目同名 server 影响，不把 NAS 凭证复制到调用端。已有配置不覆盖；不存在时从已确认的 MCP 主机建一种连接：
+`firecrawl` 是可选渠道：先 `agent-reach add firecrawl`，再 `agent-reach doctor --text` 看 `needs_setup` 的原因。
+
+渠道读 `~/.agent-reach/firecrawl.json`，经本机或 SSH 上的 mcporter 调用 Firecrawl MCP：
 
 ```json
-{"transport":"ssh","ssh_host":"YOUR_EXISTING_SSH_ALIAS","server":"firecrawl","mcporter_config":"/absolute/remote/home/.agent-reach/firecrawl-mcp.json"}
+{"transport":"ssh","ssh_host":"已有的 SSH 别名","server":"firecrawl","mcporter_config":"/执行端绝对路径/firecrawl-mcp.json"}
 ```
 
-本机时 `"transport":"local"`，去掉 `ssh_host`。
-
-- `mcporter_config` 必填，是执行端绝对路径（SSH 时为远端路径，不用 `~`）；旧配置缺此字段会在请求前报错。
-- 该文件在执行端只含目标 MCP：`{"imports":[],"mcpServers":{"firecrawl":{"command":"…","args":[],"env":{}}}}`，从已有 Claude/Codex 定义复制 command/args/env（保留实际 API URL 与认证），相对路径改为执行端绝对路径；权限 0600，内容和凭证不进日志或 Git。
-- `ssh_host` 必须是已配置且获授权的 SSH 别名。缺配置时脚本报错退出：不猜 NAS 地址、不安装服务、不自动改走云端、不擅改 NAS 部署。
-- `firecrawl-mcp` 是桥接进程，后端 API 由其环境 `FIRECRAWL_API_URL`（需要时加 `FIRECRAWL_API_KEY`）指定；API 地址不是 MCP endpoint，不能当 `mcporter --http-url`。地址与密钥只留本机配置，不写进 skill。
-- 技能与连接配置分开分发：新机器需建立自己的连接，先 `list` 再对目标页 scrape 验收。
-- MCP 暴露工具不等于自架 API 支持：scrape、map、crawl 分别验证；search、JSON/LLM 提取、agent 可能需额外服务，不能由抓页成功推断。全网搜索走 search reference 的 Exa。
-
-## 网站探索与多页采集
-
-单页 scrape；只找 URL 用 map；要多页正文用 crawl。URL、路径、页数收窄到任务范围：
-
-```bash
-python3 scripts/firecrawl.py firecrawl_map --args '{"url":"https://example.com","limit":20,"includeSubdomains":false}'
-python3 scripts/firecrawl.py firecrawl_crawl --args '{"url":"https://example.com/docs/","includePaths":["^/docs/.*"],"limit":10,"allowExternalLinks":false,"allowSubdomains":false,"scrapeOptions":{"formats":["markdown"]}}'
-python3 scripts/firecrawl.py firecrawl_check_crawl_status --args '{"id":"RETURNED_CRAWL_ID"}'
-```
-
-crawl 可能同步返回或返回任务 ID：保留 ID，未完成时查同一任务，不重复提交。超时且无 ID 时只沿已有响应/日志线索查询；无线索就停止并报告结果未知，不重提、不启动替代采集。完成后核对 status、失败页、正文和分页字段，说明实际覆盖了哪些页。
-
-## 失败退回
-
-- Jina 失败或只给验证页 → Firecrawl scrape → 仍失败 → 已配置的 web-reader 或浏览器。
-- Firecrawl 未连接/认证失败/功能不支持 → 单页退回尚未失败的 Jina 或 web-reader；不重试同一错误。
-- map 空列表只表示本次未发现 URL；可读目标页链接或已知 sitemap 再逐页 scrape。
-- crawl 不支持或失败 → 对已知 URL 有界逐页 scrape 并说明覆盖不足；不能冒充整站采集。
-- 每个替代后端试一次仍无正文就报告具体阻塞。用户指定只用 Firecrawl 时不静默改走其他服务。
+- 本机执行用 `"transport":"local"`，去掉 `ssh_host`。`mcporter_config` 必须是执行端的绝对路径（SSH 时是远端路径，不用 `~`）。
+- 那个 mcporter 配置只包含目标 server：`{"imports":[],"mcpServers":{"firecrawl":{"command":"…","args":[],"env":{}}}}`，command/args/env 从已有的 Claude/Codex MCP 定义复制。文件权限 0600，地址与密钥不进日志、Git 或 skill。
+- 已有配置不覆盖。缺配置时只从用户确认过的 MCP 主机建立连接：不猜 NAS 地址、不装服务、不改 NAS 部署、不自动改走云端。
+- MCP 列出工具不等于自架 API 都支持：scrape、map、crawl 分别实测。search、JSON 提取、agent 可能要额外服务，不能从抓页成功推断。
