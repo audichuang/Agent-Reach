@@ -37,5 +37,34 @@
     "new": "2/2"
    }
   }
+ },
+ "usage_review": {
+  "source": "95 Claude/Codex sessions on this machine and macmini that used agent-reach",
+  "failures": {
+   "macOS timeout/gtimeout missing": 6,
+   "OpenCLI Bridge not connected": 4,
+   "twitter/rdt CLI missing": 5,
+   "mcporter has no exa": 5
+  },
+  "change": "SKILL.md 多来源调研 section: only via agent-reach, --timeout, doctor once in main agent, commands in subagent tasks",
+  "body": {
+   "baseline": "previous v1.6 port (skill-snapshot-v2)",
+   "cases": {
+    "rerank-research-subagents": {
+     "old": "pass",
+     "new": "pass",
+     "note": "new puts concrete commands in subagent tasks; caught v2ex has no search (fixed e9e80ea)"
+    },
+    "x-status-link": {
+     "old": "pass",
+     "new": "pass"
+    },
+    "reddit-x-opinions": {
+     "old": "pass",
+     "new": "pass"
+    }
+   },
+   "conclusion": "v1.6 unified entry already removes the observed failures; the new section adds a small delegation improvement"
+  }
  }
 }
