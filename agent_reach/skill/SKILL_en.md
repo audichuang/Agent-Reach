@@ -1,14 +1,7 @@
 ---
 name: agent-reach
 description: >
-  Read-only access to platform content: search, read posts, view comments, fetch subtitles, stock quotes and jobs.
-  Use when the user mentions or pastes a link from Xiaohongshu, Bilibili, Twitter/X, Reddit,
-  YouTube (subtitles, transcripts), GitHub, V2EX, Xueqiu/stock quotes, LinkedIn/Boss Zhipin jobs,
-  Instagram, Facebook or Xiaoyuzhou podcasts; or says "search / look up / read this link" and your built-in
-  web search or fetch is unavailable, fails, or misses the body;
-  or wants to install, add/remove a platform, log in/out, check status, update or uninstall Agent Reach.
-  Does not: post, comment, like, message or any other write; never logs in for the user or asks for passwords.
-  Prefer your own tools for public content; Reach fills the gaps.
+  Reads and searches platforms that need dedicated tools: X/Twitter, Reddit, Bilibili, V2EX, Xiaoyuzhou podcasts, Xueqiu, Boss Zhipin/LinkedIn, Facebook/Instagram, XiaoHongShu, plus Firecrawl scrapes, site URL discovery and multi-page crawls. Also installs Agent Reach, adds/removes platforms, logs in/out, runs doctor and updates. Read-only: never posts, comments or messages. Plain web search and URL reads stay with built-in tools; platforms with their own skill go to that skill.
 metadata:
   homepage: https://github.com/Panniantong/Agent-Reach
   version: "{{VERSION}}"
@@ -22,6 +15,7 @@ Before acting, say "using the agent-reach skill (channel X)". Once invoked, thes
 
 ## Choosing a route
 
+- A platform with a dedicated skill installed here (e.g. redbook for XiaoHongShu) goes to that skill first; come back to Reach only when its real command fails. See [downstream notes](references/downstream.md).
 - For public content, use your own search/read tools first (optionally `site:domain`). Check body text, comments and subtitles separately; when they are enough, answer directly without adding channels or logging in.
 - Use Reach when your tools are unavailable, the result lacks what the user needs, or the user wants a site action a channel declares. Unsure of actions and params? Run `agent-reach channels`.
 - An added channel (a default one, or one added with `add`) sends search/read straight to its site tool. For channels not added yet, search/read first try anonymous public web access; results mark it with `backend: public-web`. `--backend public-web` limits to public web; `--backend <backend>` picks a site tool.
@@ -63,6 +57,7 @@ The first time a site is used, if the user's Chrome is connected to the OpenCLI 
 
 - Xiaohongshu read returns text descriptions only; never claim to understand the images or video.
 - When a Boss Zhipin search result has `salary_encoded=true`, never guess the salary digits; read the job link for the readable salary in the detail.
+- Firecrawl (`agent-reach firecrawl scrape|map|crawl|status`): when the user names Firecrawl, wants a site's URL list or multi-page text, or web read only returned a challenge page or empty shell; read [Firecrawl](references/firecrawl.md) first.
 - What each platform offers publicly and what Reach adds is in [Capability scope](references/capabilities.md): read it when the user asks "what can it get / is it complete" or you need to judge completeness.
 
 ## Channels
@@ -92,7 +87,7 @@ Troubleshooting, browser maintenance and uninstall details are in [Maintenance](
 
 ## When there is a new version
 
-Any result with `meta.update` means a newer version exists. Mention it once per conversation, in the user's language and plain words:
+Any result with `meta.update` means a newer version exists. This machine runs a private downstream: read [downstream notes](references/downstream.md) before answering. Mention it once per conversation, in the user's language and plain words:
 
 1. Agent Reach has a new version (`meta.update.latest`).
 2. What changed: 1 to 3 short points from `meta.update.notes`.

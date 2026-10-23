@@ -1,13 +1,7 @@
 ---
 name: agent-reach
 description: >
-  只读读取各平台内容：搜索、读帖、看评论、取字幕、查行情和职位。
-  Use when 用户提到或贴出链接：小红书/xiaohongshu、B站/bilibili、Twitter/X、Reddit、
-  YouTube（字幕、转录）、GitHub、V2EX、雪球/股票行情、LinkedIn/Boss直聘 职位、
-  Instagram、Facebook、小宇宙播客；或说"帮我搜/看看/读一下这个链接"而自带网页搜索/读取不可用、失败或拿不到正文；
-  或要安装、加上/去掉某个平台、登录/退出、看状态、更新、卸载 Agent Reach。
-  不做：发帖、评论、点赞、私信等任何写操作；不替用户登录、不索要密码。
-  公开内容优先用 Agent 自带工具，Reach 补缺口。
+  读取或搜索需专用工具的平台：X/推特、Reddit、B站、V2EX、小宇宙播客、雪球、Boss直聘/LinkedIn、Facebook/Instagram、小红书/小紅書，以及 Firecrawl 抓页/站内 URL 探索/多页爬站；也负责 Agent Reach 的安装、加减平台、登录/退出、doctor 诊断与更新。只读，不发帖、评论、私信。普通网页搜索、读 URL 用内置工具；有专门技能的平台交给该技能。
 metadata:
   homepage: https://github.com/Panniantong/Agent-Reach
   version: "{{VERSION}}"
@@ -21,6 +15,7 @@ metadata:
 
 ## 选路
 
+- 本机已装专门技能的平台（如小红书的 redbook）先用该技能，它的实际命令失败才回到 Reach；见 [下游说明](references/downstream.md)。
 - 公开内容先用你自带的搜索/读取工具（可加 `site:域名`）。正文、评论、字幕分别核对是否已拿到；够了就直接回答，不装渠道、不登录。
 - 自带工具不可用、结果缺了用户要的部分、或用户要的是渠道声明的站内动作时，再用 Reach。不确定有哪些动作和参数先跑 `agent-reach channels`。
 - 渠道已经加上（默认渠道或 `add` 过）时，搜索/阅读直接走该站工具；还没加的渠道，搜索/阅读先试免登录公开网页，结果里 `backend: public-web` 标明来源。`--backend public-web` 只查公开网页；`--backend <后端>` 指定站内工具。
@@ -62,6 +57,7 @@ agent-reach read <链接>                   # 按链接自动选渠道
 
 - 小红书 read 只返回文字描述，不要声称看懂了图片或视频。
 - Boss 直聘搜索结果 `salary_encoded=true` 时绝不猜薪资数字；read 职位链接拿详情里的可读薪资。
+- Firecrawl（`agent-reach firecrawl scrape|map|crawl|status`）：用户点名 Firecrawl、要站内 URL 列表或多页正文，或 web read 只拿到验证页/空壳时用；先读 [Firecrawl](references/firecrawl.md)。
 - 各平台公开能做什么、Reach 补什么，见 [能力边界](references/capabilities.md)：用户问"能查什么/查得全吗"或要判断结果完整度时读它。
 
 ## 渠道
@@ -91,7 +87,7 @@ agent-reach read <链接>                   # 按链接自动选渠道
 
 ## 有新版本时
 
-结果里出现 `meta.update` 就说明有新版本。每次对话只提一次，用用户的语言、大白话：
+结果里出现 `meta.update` 就说明有新版本。本机是私有下游，先读 [下游说明](references/downstream.md) 再回应。每次对话只提一次，用用户的语言、大白话：
 
 1. 告诉用户有新版本（`meta.update.latest`）。
 2. 从 `meta.update.notes` 挑 1 到 3 个要点说清改了什么。
