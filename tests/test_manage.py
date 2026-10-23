@@ -332,7 +332,7 @@ def test_update_check_compares_versions_and_refreshes_the_cache(monkeypatch, lat
 
 def test_upgrade_reinstalls_the_release_with_uv():
     cmd = manage.upgrade_command("2.0.1")
-    assert cmd[:4] == ["uv", "tool", "install", "--force"] and cmd[-1].endswith("/v2.0.1.zip")
+    assert cmd[:4] == ["uv", "tool", "install", "--force"] and cmd[-1] == manage.DOWNSTREAM_SOURCE
 
 
 def test_update_from_a_non_uv_install_moves_itself_to_uv(env, monkeypatch, tmp_path):
@@ -359,7 +359,7 @@ def test_update_from_a_non_uv_install_moves_itself_to_uv(env, monkeypatch, tmp_p
 
     monkeypatch.setattr(manage.subprocess, "run", run)
     out = manage.update()
-    assert calls[0][:4] == ["/fake/uv", "tool", "install", "--force"] and calls[0][-1].endswith("/v2.0.1.zip")
+    assert calls[0][:4] == ["/fake/uv", "tool", "install", "--force"] and calls[0][-1] == manage.DOWNSTREAM_SOURCE
     assert calls[2] == [str(exe), "setup"]  # no state yet: the new copy sets itself up
     assert out["upgraded"] and out["installation_report"] == {"markdown": "r"}
     assert "log in to x" in out["user_actions"]
@@ -797,3 +797,11 @@ def test_retired_mcp_cleanup_preserves_changed_private_path(env, monkeypatch):
     monkeypatch.setattr(paths, "read_small_text_no_follow", changed)
     assert manage._retired_mcp_notice()
     assert path.read_text() == "unchanged"
+
+
+def test_upgrade_installs_downstream_branch_not_upstream_release():
+    from agent_reach.runtime import manage
+
+    cmd = manage.upgrade_command("9.9.9")
+    assert cmd[-1] == "git+https://github.com/audichuang/Agent-Reach.git@local"
+    assert "Panniantong" not in " ".join(cmd)

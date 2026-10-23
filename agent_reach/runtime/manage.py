@@ -757,8 +757,13 @@ def install_method() -> str:
     return "other"
 
 
+# Downstream: installs always come from this private repo's deployment branch;
+# REPO (upstream) is only used to notice new upstream releases.
+DOWNSTREAM_SOURCE = "git+https://github.com/audichuang/Agent-Reach.git@local"
+
+
 def _source(version: str) -> str:
-    return f"https://github.com/{REPO}/archive/refs/tags/v{version}.zip"
+    return DOWNSTREAM_SOURCE
 
 
 def upgrade_command(version: str) -> List[str]:
