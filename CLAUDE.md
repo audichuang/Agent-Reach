@@ -1,44 +1,32 @@
 # CLAUDE.md
 
 ## Project
-Agent Reach — Python CLI + library that gives AI agents read/search access to 13 internet platforms.
-Positioning: installer + doctor + config tool. NOT a wrapper — after install, agents call upstream tools directly.
-Repo: github.com/Panniantong/Agent-Reach | License: MIT | Version: 1.5.0
+Agent Reach — one read-only CLI (`agent-reach <channel> <action>`) that gives AI agents search/read access to internet platforms, returning one JSON envelope per call.
+Private downstream of github.com/Panniantong/Agent-Reach | License: MIT | Version: 1.6.0
 
 ## Commands
-- `pip install -e .` — Dev install
+- `uv venv && uv pip install -e . pytest` — Dev install (keep it out of the user's real `~/.agent-reach`)
 - `pytest tests/ -v` — All tests
-- `pytest tests/test_cli.py -v` — CLI tests only
-- `bash test.sh` — Full integration test (creates venv, installs, runs doctor + channel tests)
-- `python -m agent_reach.cli doctor` — Run diagnostics
-- `python -m agent_reach.cli install --env=auto` — Auto-configure
+- `python scripts/render_skill.py` — Re-render `skills/agent-reach/` after touching `agent_reach/skill/` or any channel
 
 ## Structure
-- `agent_reach/cli.py` — CLI entry point (argparse)
-- `agent_reach/core.py` — Core read/search routing logic
-- `agent_reach/config.py` — Config management (YAML, env vars)
-- `agent_reach/doctor.py` — Diagnostics engine
-- `agent_reach/channels/` — One file per platform (twitter.py, reddit.py, youtube.py, etc.)
-- `agent_reach/channels/base.py` — Base channel class (all channels inherit from this)
-- `agent_reach/integrations/mcp_server.py` — MCP server integration
-- `agent_reach/skill/` — OpenClaw skill files
-- `agent_reach/guides/` — Usage guides
-- `tests/` — pytest tests
-- `config/mcporter.json` — MCP tool config
+- `agent_reach/cli.py` — entry point only; commands live in `agent_reach/runtime/cli.py`
+- `agent_reach/runtime/` — dispatch, management (`manage.py`: add/setup/update/skill), dedicated browser, state
+- `agent_reach/channels/` — one file per platform, subclass of `channels/base.py` `Channel`, registered in `channels/__init__.py`
+- `agent_reach/backends/` — shared upstream adapters (OpenCLI, CloakBrowser)
+- `agent_reach/skill/` — SKILL.md template + references, rendered by `manage.render_skill()`
+- `skills/agent-reach/` — rendered copy that aghub syncs (generated; never edit by hand)
 
-## Conventions
-- Python 3.10+ with type hints
-- Each channel is a single file in `channels/`, inherits from `BaseChannel`
-- Channel contract: must implement `can_handle(url)`, `read(url)`, `search(query)`, `check()` methods
-- Use `loguru` for logging, `rich` for CLI output
-- Commit format: `type(scope): message` (one commit = one thing)
-- All upstream tool calls go through public API/CLI, never hack internals
+## Downstream changes (keep through upstream syncs)
+- `channels/firecrawl.py` — Firecrawl MCP via mcporter, config `~/.agent-reach/firecrawl.json`
+- `manage.DOWNSTREAM_SOURCE` — `update` reinstalls `audichuang/Agent-Reach@local`, never the public release
+- `manage._externally_managed` — an aghub symlink at `~/.agents/skills/agent-reach` is left alone
+- Skill: narrowed description, dedicated skills (redbook) first, `references/downstream.md` and `references/firecrawl.md`
 
 ## Rules
-- NEVER modify upstream open source projects' source code
-- Agent Reach is a "glue layer" — only route and call, don't reimagine
-- Version in THREE places must match: `pyproject.toml`, `__init__.py`, `tests/test_cli.py`
+- NEVER modify upstream open source projects' source code; channels only route and call public APIs/CLIs
+- Version in `pyproject.toml` and `agent_reach/__init__.py` must match
 - Use a new branch for changes and target PRs to `local`, this private downstream's deployment branch. Keep `main` for upstream history.
+- Upstream sync: fast-forward `main` to `upstream/main`, then merge `main` into a branch off `local`
 - Run `pytest tests/ -v` before committing — all tests must pass
-- Cookie-based auth (Twitter, XHS): use Cookie-Editor export method only, no QR scan
-- XHS login: Cookie-Editor browser export only (QR will hang)
+- Commit format: `type(scope): message` (one commit = one thing)
