@@ -2,7 +2,7 @@
  "date": "2026-10-23",
  "model": "Claude CLI sonnet",
  "baseline": "1.5 downstream skill (aghub copy, refCommit 11e39c8)",
- "candidate": "skills/agent-reach rendered from v1.6 port",
+ "candidate": ".aghub/agent-reach rendered from v1.6 port",
  "trigger": {
   "method": "skillgenie run_eval, 3 runs/query, old description vs new",
   "queries": 29,

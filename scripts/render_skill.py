@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Downstream: write the rendered skill aghub syncs from (skills/agent-reach/).
+"""Downstream: write the rendered skill aghub syncs from (.aghub/agent-reach/).
 
 The packaged SKILL.md is a template ({{CHANNEL_TABLE}}, {{VERSION}}); aghub copies
 files verbatim, so it must point at this rendered copy instead.
@@ -11,7 +11,7 @@ import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
-OUT = ROOT / "skills" / "agent-reach"
+OUT = ROOT / ".aghub" / "agent-reach"
 
 
 def expected() -> dict:
