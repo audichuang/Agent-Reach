@@ -28,6 +28,14 @@ agent-reach <channel> <action> [args]     # e.g. agent-reach bilibili search "ru
 agent-reach read <url>                    # picks the channel from the URL
 ```
 
+## Multi-source research (the most common use here)
+
+- For research such as "what do people think of X" or comparing options: get web pages with your own search first, add user discussion with `agent-reach reddit|twitter|v2ex|bilibili search`, and use `agent-reach web search` when your own web search is unavailable.
+- Call only through `agent-reach`, never `opencli`, `twitter`, `rdt` or `mcporter` directly: those tools live in Reach's private folder and may not be on PATH, and the dedicated browser only opens automatically through `agent-reach`.
+- Limit time with `--timeout SECONDS`; do not wrap commands in `timeout`/`gtimeout` (macOS lacks them).
+- When delegating to subagents, run `agent-reach doctor --text` once yourself and put the usable channels and the exact `agent-reach ...` commands into each subagent's task; subagents do not rerun doctor or read this skill's references to find commands. Parallel limits are below (2 per platform, 4 total).
+- Deliver per platform what was actually retrieved, with links; for platforms that returned nothing, give the `error.code`.
+
 ## Results and errors
 
 - `ok: true` → content in `items`; each has `title / url / author / published_at / text`, upstream data in `raw`.

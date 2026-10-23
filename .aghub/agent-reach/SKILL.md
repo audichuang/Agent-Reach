@@ -28,6 +28,14 @@ agent-reach <渠道> <动作> [参数]          # 例：agent-reach xiaohongshu 
 agent-reach read <链接>                   # 按链接自动选渠道
 ```
 
+## 多来源调研（本机最常见的用法）
+
+- "看看大家怎么评价 X"、比较方案这类调研：网页面先用自带搜索；用户讨论用 `agent-reach reddit|twitter|v2ex|bilibili search` 补；自带全网搜索不可用时用 `agent-reach web search`。
+- 只通过 `agent-reach` 调用，不直接跑 `opencli`、`twitter`、`rdt`、`mcporter`：这些工具装在 Reach 的私有目录，可能不在 PATH；专用浏览器也只有经 `agent-reach` 才会自动打开。
+- 限时用 `--timeout 秒数`，不要套 `timeout`/`gtimeout`（macOS 没有）。
+- 派子代理时，主代理先跑一次 `agent-reach doctor --text`，把可用的渠道和要跑的 `agent-reach …` 命令直接写进子代理任务；子代理不再各自跑 doctor、不读本 skill 的 references 来找命令。并行上限照下文（同平台 2 条、合计 4 条）。
+- 交付时按平台列出实际拿到的原文与链接；没拿到的平台用 `error.code` 说明原因。
+
 ## 结果与错误
 
 - `ok: true` → 内容在 `items`，每条有 `title / url / author / published_at / text`，原始数据在 `raw`。
