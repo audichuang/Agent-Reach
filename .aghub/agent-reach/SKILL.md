@@ -4,7 +4,7 @@ description: >
   读取或搜索需专用工具的平台：X/推特、Reddit、B站、V2EX、小宇宙播客、雪球、Boss直聘/LinkedIn、Facebook/Instagram、小红书/小紅書，以及 Firecrawl 抓页/站内 URL 探索/多页爬站；也负责 Agent Reach 的安装、加减平台、登录/退出、doctor 诊断与更新。只读，不发帖、评论、私信。普通网页搜索、读 URL 用内置工具；有专门技能的平台交给该技能。
 metadata:
   homepage: https://github.com/Panniantong/Agent-Reach
-  version: "1.6.0"
+  version: "1.6.1"
 ---
 
 # Agent Reach
