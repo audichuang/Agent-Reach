@@ -7,6 +7,7 @@ Private downstream of github.com/Panniantong/Agent-Reach | License: MIT | Versio
 ## Commands
 - `uv venv && uv pip install -e . pytest` — Dev install (keep it out of the user's real `~/.agent-reach`)
 - `pytest tests/ -v` — All tests
+- Live-test a channel that shells out (e.g. firecrawl) by calling its backend method under the real HOME; the CLI writes `~/.agent-reach/state.json` and has no state-dir override, while a fake HOME breaks npx-launched MCP servers
 - `python scripts/render_skill.py` — Re-render `.aghub/agent-reach/` after touching `agent_reach/skill/` or any channel
 
 ## Structure
@@ -15,7 +16,7 @@ Private downstream of github.com/Panniantong/Agent-Reach | License: MIT | Versio
 - `agent_reach/channels/` — one file per platform, subclass of `channels/base.py` `Channel`, registered in `channels/__init__.py`
 - `agent_reach/backends/` — shared upstream adapters (OpenCLI, CloakBrowser)
 - `agent_reach/skill/` — SKILL.md template + references, rendered by `manage.render_skill()`
-- `.aghub/agent-reach/` — rendered copy that aghub syncs (generated; never edit by hand)
+- `.aghub/agent-reach/` — rendered copy that aghub syncs (generated; never edit by hand). Keep it under a path that sorts before `agent_reach/`: aghub dedups same-name skills first-seen, so anywhere later loses to the raw template
 
 ## Downstream changes (keep through upstream syncs)
 - `channels/firecrawl.py` — Firecrawl MCP via mcporter, config `~/.agent-reach/firecrawl.json`
