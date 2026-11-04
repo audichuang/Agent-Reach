@@ -7,7 +7,7 @@ import json
 import os
 import re
 import urllib.error
-from urllib.parse import urlencode
+from urllib.parse import urlencode, urlsplit
 
 from agent_reach.runtime.result import (
     BAD_INPUT,
@@ -27,6 +27,7 @@ _TARGET_RE = re.compile(
     r"^(?:https?://(?:www\.)?github\.com/)?([\w.-]+)/([\w.-]+?)(?:\.git)?"
     r"(?:/(?:issues|pull)/(\d+))?/?(?:[?#].*)?$"
 )
+_PATH_RE = re.compile(r"^/[\w.-]+/[\w.-]+(?:/(?:issues|pull)/\d+)?/?$")
 _README_MAX_CHARS = 50_000
 
 _GH_READ_ONLY_ENV = {
@@ -132,7 +133,8 @@ class GitHubChannel(Channel):
     def can_handle(self, url: str) -> bool:
         from agent_reach.utils.url import host_matches
 
-        return host_matches(url, "github.com")
+        # Only claim URLs _parse_target understands; blob/tree/profile links fall through to web.
+        return host_matches(url, "github.com") and bool(_PATH_RE.match(urlsplit(str(url).strip()).path))
 
     # ── unified entry backends ──
 
