@@ -328,3 +328,52 @@ def test_xueqiu_syncs_reused_browser_login_only_for_community_actions(monkeypatc
     ch._xq_hot_posts(limit=2,timeout=2)
     reuse.assert_called_once_with('xueqiu')
     sync.assert_called_once_with()
+
+
+def _self_heal_setup(monkeypatch, record):
+    from unittest.mock import Mock
+
+    from agent_reach.runtime import session_reuse
+
+    if record is not None:
+        state.mutate(lambda data: data.setdefault('session_reuse', {}).__setitem__('xiaohongshu', record))
+    incoming = [{'name': 'sid', 'value': 'fresh', 'domain': '.xiaohongshu.com', 'path': '/'}]
+    source, call = Mock(return_value=(incoming, 'daily')), Mock(return_value={})
+    monkeypatch.setattr(browser, 'ensure_running', lambda: None)
+    monkeypatch.setattr(browser, 'save_session', lambda: None)
+    monkeypatch.setattr(session_reuse, '_source_cookies', source)
+    monkeypatch.setattr(cdp, 'call', call)
+    return source, call
+
+
+def _self_heal(capsys):
+    assert cli.main(['login', 'xiaohongshu', '--self-heal']) in (0, 1)
+    return json.loads(capsys.readouterr().out)
+
+
+def test_self_heal_without_record_reimports_even_with_snapshot(monkeypatch, capsys):
+    saved = {'source': 'daily', 'copied_cookies': 1, 'cookie_snapshot': 1, 'at': state.now()}
+    source, call = _self_heal_setup(monkeypatch, saved)
+    out = _self_heal(capsys)
+    assert out['ok'] and out['result']['copied_cookies'] == 1
+    source.assert_called_once()
+
+
+@pytest.mark.parametrize('record,wording', [
+    ({'blocked': True, 'at': '2026-01-02T03:04:05Z'}, 'logged out of'),
+    ({'source': 'manual', 'at': '2026-01-02T03:04:05Z'}, 'manually chose'),
+])
+def test_self_heal_refuses_logout_and_manual_records(monkeypatch, capsys, record, wording):
+    source, call = _self_heal_setup(monkeypatch, record)
+    out = _self_heal(capsys)
+    assert not out['ok'] and out['error']['code'] == 'NEED_LOGIN'
+    assert wording in out['error']['message'] and '2026-01-02T03:04:05Z' in out['error']['message']
+    assert '--import-existing' in out['error']['hint'] and 'ask the user' in out['error']['hint'].lower()
+    source.assert_not_called()
+    call.assert_not_called()
+    assert state.load()['session_reuse']['xiaohongshu'] == record
+
+
+def test_self_heal_is_refused_for_session_channels(capsys):
+    assert cli.main(['login', 'bilibili', '--self-heal']) == 1
+    assert json.loads(capsys.readouterr().out)['error']['code'] == 'BAD_INPUT'

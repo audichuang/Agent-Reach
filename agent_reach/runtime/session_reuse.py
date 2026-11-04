@@ -12,7 +12,7 @@ from agent_reach.utils.paths import PrivatePathError, read_small_text_no_follow
 
 from . import bridge, browser, cdp, state
 from .browser_binding import wait_lock
-from .result import NEED_SETUP, UPSTREAM_BROKEN, ReachError
+from .result import NEED_LOGIN, NEED_SETUP, UPSTREAM_BROKEN, ReachError
 
 
 def _cookies(rows, domains) -> list:
@@ -88,7 +88,7 @@ def _source_cookies(channel: str, domains) -> tuple[list, str]:
     return cookies, "saved-reach-session" if cookies else "saved-profile"
 
 
-def prepare(channel: str, *, force: bool = False) -> dict:
+def prepare(channel: str, *, force: bool = False, self_heal: bool = False) -> dict:
     """Reuse an imported site session until explicitly refreshed; verify access separately."""
     from .manage import _channel, site_domains
     ch = _channel(channel)
@@ -98,6 +98,14 @@ def prepare(channel: str, *, force: bool = False) -> dict:
     with wait_lock(f"session:{channel}"):
         browser.ensure_running()
         record = state.load().get("session_reuse", {}).get(channel, {})
+        if self_heal:
+            # Re-import like force=True, but never override a logout or a manual account choice.
+            if record.get("blocked") or record.get("source") == "manual":
+                what = "logged out of" if record.get("blocked") else "manually chose the login for"
+                raise ReachError(NEED_LOGIN, f"The user {what} {channel} (recorded at {record.get('at', 'unknown time')}); nothing was copied",
+                                 hint=f"Ask the user before importing: run agent-reach login {channel} --import-existing only with their consent, "
+                                      f"or agent-reach login {channel} for an interactive login.")
+            force = True
         if not force and (record.get("blocked") or record.get("source") == "manual"
                           or (record.get("cookie_snapshot") == 1 and record.get("copied_cookies", 0) > 0)):
             return record

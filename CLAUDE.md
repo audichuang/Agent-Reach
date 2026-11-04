@@ -24,6 +24,7 @@ Private downstream of github.com/Panniantong/Agent-Reach | License: MIT | Versio
 - `backends/opencli._opencli_error` — OpenCLI "HTML instead of JSON" maps to UPSTREAM_BROKEN, not NEED_LOGIN, so added channels reach the public-web fallback
 - `channels/google_news.py`, `channels/hackernews.py` — no-browser news channels over OpenCLI (`google news`, `hackernews`); default level, tools `opencli`+`node`, no login
 - `backends/opencli.py` `opencli_public_items` — backend label `opencli-public` skips the browser binding, query slot and pacing in dispatch; use it for any OpenCLI site that needs no browser
+- `runtime/session_reuse.prepare(self_heal=True)` / `login --self-heal` — agent-run re-import that refuses (NEED_LOGIN) when the record is `blocked` or `manual`; `--import-existing` stays upstream-forced
 - Skill: narrowed description, dedicated skills (redbook) first, `references/downstream.md` and `references/firecrawl.md`
 
 ## Rules
