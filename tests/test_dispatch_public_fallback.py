@@ -186,3 +186,37 @@ def test_868_paused_site_backend_still_falls_back(monkeypatch):
     assert len(calls) == 1
     assert out["ok"] and out["backend"] == "public-web"
     assert out["meta"]["attempts"][0]["skipped"] is True
+
+
+REAL_HTML_MSG = ("Server returned HTML instead of JSON (status=403). "
+                 "Likely a login wall, rate limit, or WAF challenge.")
+
+
+def test_opencli_html_instead_of_json_is_not_need_login():
+    import json
+
+    from agent_reach.backends.opencli import _opencli_error
+    err = _opencli_error(json.dumps({"error": {"message": REAL_HTML_MSG}}), "login hint")
+    assert err.code == "UPSTREAM_BROKEN"
+    assert REAL_HTML_MSG in err.message and "login hint" in err.hint
+
+
+def test_added_reddit_real_opencli_html_message_falls_back_to_public_web(monkeypatch):
+    import json
+
+    from agent_reach.backends.opencli import _opencli_error
+    _added_reddit()
+
+    def opencli_search(self, **kwargs):
+        raise _opencli_error(json.dumps({"error": {"message": REAL_HTML_MSG}}), "")
+
+    monkeypatch.setattr(RedditChannel, "_opencli_search", opencli_search)
+    monkeypatch.setattr(WebChannel, "_exa_search", Mock(return_value=[
+        make_item(title="Python thread", url="https://www.reddit.com/r/python/comments/abc/test_post",
+                  text="A public reddit thread about python testing and mocks."),
+    ]))
+    out = run_action(RedditChannel(), "search", {"query": "claude code", "limit": 2})
+    assert out["ok"], out
+    assert out["backend"] == "public-web"
+    first = out["meta"]["attempts"][0]
+    assert first["backend"] == "opencli" and first["result"] == "UPSTREAM_BROKEN"
