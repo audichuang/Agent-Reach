@@ -30,7 +30,9 @@ def test_skill_text_guards_session_overwrite_and_check_misuse():
     for name in files:
         t = files[name]
         assert "check <渠道> --search" not in t and "check <channel> --search" not in t
-        assert "--search --text" not in t
+    for name in ("SKILL.md", "SKILL_en.md"):
+        # search channels must be pre-checked via the route the agent really takes (public-web)
+        assert "check <渠道1> <渠道2> --search --text" in files[name] or "check <ch1> <ch2> --search --text" in files[name]
     for name in ("SKILL.md", "SKILL_en.md"):
         t = files[name]
         assert "public_web" in t

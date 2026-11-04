@@ -50,7 +50,7 @@ agent-reach read <链接>                   # 按链接自动选渠道
 
 用户要深度或多方面调研时，按话题拆给几个子代理并行：
 
-1. 主代理先实测要派出去的渠道：`agent-reach check <渠道1> <渠道2> --text`（不加 `--search`：没有 search 动作的渠道如 v2ex、小宇宙加了会是 0/0 而判成不可用），看每行 PASS/FAIL（有 FAIL 时退出码为 1）。PASS 要看行内 `[backend]` 是不是要派的那条路线；没 add 的渠道标 `[public-web]` 只证明公开网页能用，不证明站内动作能用。`doctor` 只读本地状态，看不出登录已过期。
+1. 主代理先实测要派出去的渠道：`agent-reach check <渠道1> <渠道2> --search --text`（`--search` 验证的是你实际会走的路由，没 add 的渠道也会走 public-web；没有 search 动作的渠道如 v2ex、小宇宙加了会是 0/0，这类改用不带 `--search` 的 `check <渠道> --text`，或直接跑要派的动作），看每行 PASS/FAIL（有 FAIL 时退出码为 1）。PASS 要看行内 `[backend]` 是不是要派的那条路线；没 add 的渠道标 `[public-web]` 只证明公开网页能用，不证明站内动作能用。`doctor` 只读本地状态，看不出登录已过期。
 2. 只派 PASS 的渠道，把要跑的 `agent-reach …` 命令写进任务。
 3. 告诉子代理：不跑 doctor、不读本 skill 的 references；大 JSON 先用 `jq` 或 python 只取 `title/url/published_at/text`，不整段塞进上下文；回报格式照上面第 4 步。
 4. 并行上限：同平台 2 条、合计 4 条，多出来的 Reach 自动排队。

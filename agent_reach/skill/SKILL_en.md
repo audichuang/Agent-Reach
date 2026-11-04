@@ -50,7 +50,7 @@ Users have complained "analysing without checking the news is wrong" and "no big
 
 When the user wants depth or several angles, split by topic across subagents in parallel:
 
-1. Live-test the channels you will hand out first: `agent-reach check <ch1> <ch2> --text` (no `--search`: channels without a search action, such as v2ex and xiaoyuzhou, show 0/0 and look unusable) and read each PASS/FAIL line (exit code 1 if any fails). Check that the inline `[backend]` is the route you will hand out; `[public-web]` on a channel not added only proves anonymous web works, not the in-site actions. `doctor` reads local state only and cannot see an expired login.
+1. Live-test the channels you will hand out first: `agent-reach check <ch1> <ch2> --search --text` (`--search` tests the route you will actually take, including public-web for channels not added; channels without a search action, such as v2ex and xiaoyuzhou, show 0/0 under it, so check those with `check <ch> --text` without `--search`, or just run the action you will hand out) and read each PASS/FAIL line (exit code 1 if any fails). Check that the inline `[backend]` is the route you will hand out; `[public-web]` on a channel not added only proves anonymous web works, not the in-site actions. `doctor` reads local state only and cannot see an expired login.
 2. Hand out only PASS channels, with the exact `agent-reach ...` commands in the task.
 3. Tell subagents: do not run doctor or read this skill's references; trim big JSON with `jq` or python to `title/url/published_at/text` instead of pasting it whole; report in the format of step 4 above.
 4. Parallel limits: 2 per platform, 4 in total; Reach queues the rest.
