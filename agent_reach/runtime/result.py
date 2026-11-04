@@ -55,6 +55,7 @@ class ReachError(Exception):
         self.code = code
         self.message = message
         self.hint = hint
+        self.upstream_code = ""
 
 
 def _clean(text: object) -> str:

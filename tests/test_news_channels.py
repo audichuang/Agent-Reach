@@ -88,6 +88,18 @@ def test_empty_result_is_not_found(run):
     assert res["error"]["code"] == "NOT_FOUND"
 
 
+def test_upstream_not_found_error_is_not_found_and_does_not_pause(run):
+    import json
+    from agent_reach.runtime.run import CommandFailed
+    payload = json.dumps({"ok": False, "error": {"code": "NOT_FOUND", "message": "No news articles found"}})
+    run.side_effect = CommandFailed("UPSTREAM_BROKEN", "exit 1", stdout=payload)
+    res = run_action(GoogleNewsChannel(), "search", {"query": "zzqx"})
+    assert res["error"]["code"] == "NOT_FOUND"
+    run.side_effect = None
+    res = _go(run, GoogleNewsChannel(), "search", GN_ROWS, query="Nvidia")
+    assert res["ok"] is True
+
+
 def test_upstream_error_passes_through(run):
     res = _go(run, HackerNewsChannel(), "top", {"ok": False, "error": {"code": "X", "message": "boom"}})
     assert res["error"]["message"] == "boom"

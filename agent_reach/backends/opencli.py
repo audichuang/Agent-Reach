@@ -59,7 +59,9 @@ def _opencli_error(text: str, login_hint: str):
             "AUTH" in code or "LOGIN" in code or any(w in low for w in login_words)):
         # Upstream would send the user to their own Chrome; Reach logs in in its own browser.
         return ReachError(NEED_LOGIN, message, hint=login_hint or None)
-    return ReachError(UPSTREAM_BROKEN, message, hint=upstream_hint)
+    broken = ReachError(UPSTREAM_BROKEN, message, hint=upstream_hint)
+    broken.upstream_code = code
+    return broken
 
 
 def _run_opencli(site: str, args, *, timeout: float, env=None, login_hint: str = ""):
@@ -97,7 +99,14 @@ def opencli_public_items(site: str, args, *, timeout: float) -> list:
     """
     from agent_reach.runtime.result import NOT_FOUND, ReachError
 
-    items = opencli_items(_run_opencli(site, args, timeout=timeout))
+    try:
+        data = _run_opencli(site, args, timeout=timeout)
+    except ReachError as exc:
+        # Upstream reports "no results" as error code NOT_FOUND; that is not a broken backend.
+        if exc.upstream_code == "NOT_FOUND":
+            raise ReachError(NOT_FOUND, exc.message) from None
+        raise
+    items = opencli_items(data)
     if not items:
         raise ReachError(NOT_FOUND, "nothing found")
     return items
