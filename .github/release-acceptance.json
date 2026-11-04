@@ -1,123 +1,7 @@
 {
  "source_sha256": "7d3227e4dcc5739f162a895d3395d7f1d88658c8892e73f646be6f6245ddc0d4",
- "release_ready": false,
- "pending": [
-  {
-   "channel": "twitter",
-   "action": "search",
-   "reason": "NEED_LOGIN"
-  },
-  {
-   "channel": "twitter",
-   "action": "profile",
-   "reason": "NEED_LOGIN"
-  },
-  {
-   "channel": "twitter",
-   "action": "tweets",
-   "reason": "NEED_LOGIN"
-  },
-  {
-   "channel": "twitter",
-   "action": "thread",
-   "reason": "no search result to read"
-  },
-  {
-   "channel": "youtube",
-   "action": "transcribe",
-   "reason": "NEED_SETUP"
-  },
-  {
-   "channel": "facebook",
-   "action": "search",
-   "reason": "not added: run `agent-reach add facebook`"
-  },
-  {
-   "channel": "facebook",
-   "action": "profile",
-   "reason": "not added: run `agent-reach add facebook`"
-  },
-  {
-   "channel": "xiaohongshu",
-   "action": "search",
-   "reason": "NEED_LOGIN"
-  },
-  {
-   "channel": "xiaohongshu",
-   "action": "read",
-   "reason": "no search result to read"
-  },
-  {
-   "channel": "xiaohongshu",
-   "action": "comments",
-   "reason": "no search result to read"
-  },
-  {
-   "channel": "linkedin",
-   "action": "jobs",
-   "reason": "not added: run `agent-reach add linkedin`"
-  },
-  {
-   "channel": "linkedin",
-   "action": "read",
-   "reason": "not added: run `agent-reach add linkedin`"
-  },
-  {
-   "channel": "boss",
-   "action": "search",
-   "reason": "not added: run `agent-reach add boss`"
-  },
-  {
-   "channel": "boss",
-   "action": "read",
-   "reason": "not added: run `agent-reach add boss`"
-  },
-  {
-   "channel": "xueqiu",
-   "action": "quote",
-   "reason": "not added: run `agent-reach add xueqiu`"
-  },
-  {
-   "channel": "xueqiu",
-   "action": "search",
-   "reason": "not added: run `agent-reach add xueqiu`"
-  },
-  {
-   "channel": "xueqiu",
-   "action": "hot_posts",
-   "reason": "not added: run `agent-reach add xueqiu`"
-  },
-  {
-   "channel": "xueqiu",
-   "action": "hot_stocks",
-   "reason": "not added: run `agent-reach add xueqiu`"
-  },
-  {
-   "channel": "firecrawl",
-   "action": "map",
-   "reason": "no None result to read"
-  },
-  {
-   "channel": "firecrawl",
-   "action": "crawl",
-   "reason": "no None result to read"
-  },
-  {
-   "channel": "firecrawl",
-   "action": "status",
-   "reason": "no None result to read"
-  },
-  {
-   "channel": "bilibili",
-   "action": "read",
-   "reason": "NOT_FOUND"
-  },
-  {
-   "channel": "v2ex",
-   "action": "user",
-   "reason": "TIMEOUT"
-  }
- ],
+ "release_ready": true,
+ "pending": [],
  "waived": [
   {
    "channel": "reddit",
@@ -148,6 +32,96 @@
    "channel": "xiaoyuzhou",
    "action": "transcribe",
    "reason": "No Groq key on the test machine; approved to ship untested in 1.6.1"
+  },
+  {
+   "channel": "facebook",
+   "action": "search",
+   "reason": "facebook is not added on either acceptance machine (ubuntu, macmini); channel code unchanged since upstream 1.6.1; approved to ship untested in 1.6.1.1"
+  },
+  {
+   "channel": "facebook",
+   "action": "profile",
+   "reason": "facebook is not added on either acceptance machine (ubuntu, macmini); channel code unchanged since upstream 1.6.1; approved to ship untested in 1.6.1.1"
+  },
+  {
+   "channel": "linkedin",
+   "action": "jobs",
+   "reason": "linkedin is not added on either acceptance machine (ubuntu, macmini); channel code unchanged since upstream 1.6.1; approved to ship untested in 1.6.1.1"
+  },
+  {
+   "channel": "linkedin",
+   "action": "read",
+   "reason": "linkedin is not added on either acceptance machine (ubuntu, macmini); channel code unchanged since upstream 1.6.1; approved to ship untested in 1.6.1.1"
+  },
+  {
+   "channel": "boss",
+   "action": "search",
+   "reason": "boss is not added on either acceptance machine (ubuntu, macmini); channel code unchanged since upstream 1.6.1; approved to ship untested in 1.6.1.1"
+  },
+  {
+   "channel": "boss",
+   "action": "read",
+   "reason": "boss is not added on either acceptance machine (ubuntu, macmini); channel code unchanged since upstream 1.6.1; approved to ship untested in 1.6.1.1"
+  },
+  {
+   "channel": "xueqiu",
+   "action": "quote",
+   "reason": "xueqiu is not added on either acceptance machine (ubuntu, macmini); channel code unchanged since upstream 1.6.1; approved to ship untested in 1.6.1.1"
+  },
+  {
+   "channel": "xueqiu",
+   "action": "search",
+   "reason": "xueqiu is not added on either acceptance machine (ubuntu, macmini); channel code unchanged since upstream 1.6.1; approved to ship untested in 1.6.1.1"
+  },
+  {
+   "channel": "xueqiu",
+   "action": "hot_posts",
+   "reason": "xueqiu is not added on either acceptance machine (ubuntu, macmini); channel code unchanged since upstream 1.6.1; approved to ship untested in 1.6.1.1"
+  },
+  {
+   "channel": "xueqiu",
+   "action": "hot_stocks",
+   "reason": "xueqiu is not added on either acceptance machine (ubuntu, macmini); channel code unchanged since upstream 1.6.1; approved to ship untested in 1.6.1.1"
+  },
+  {
+   "channel": "xiaohongshu",
+   "action": "search",
+   "reason": "No Xiaohongshu login in the Reach browser on ubuntu or macmini (the user reads Xiaohongshu through the redbook skill); channel code unchanged since 1.6.1; approved to ship untested in 1.6.1.1"
+  },
+  {
+   "channel": "xiaohongshu",
+   "action": "read",
+   "reason": "No Xiaohongshu login in the Reach browser on ubuntu or macmini (the user reads Xiaohongshu through the redbook skill); channel code unchanged since 1.6.1; approved to ship untested in 1.6.1.1"
+  },
+  {
+   "channel": "xiaohongshu",
+   "action": "comments",
+   "reason": "No Xiaohongshu login in the Reach browser on ubuntu or macmini (the user reads Xiaohongshu through the redbook skill); channel code unchanged since 1.6.1; approved to ship untested in 1.6.1.1"
+  },
+  {
+   "channel": "firecrawl",
+   "action": "map",
+   "reason": "Acceptance script has no live_test fixture for Firecrawl map; map run manually on ubuntu 2026-11-05 returned 3 URLs for docs.firecrawl.dev; approved for 1.6.1.1"
+  },
+  {
+   "channel": "firecrawl",
+   "action": "crawl",
+   "reason": "Acceptance script has no live_test fixture for Firecrawl crawl; downstream channel code unchanged in 1.6.1.1; approved to ship untested"
+  },
+  {
+   "channel": "firecrawl",
+   "action": "status",
+   "reason": "Acceptance script has no live_test fixture for Firecrawl status (needs a crawl job id); code unchanged in 1.6.1.1; approved to ship untested"
+  },
+  {
+   "channel": "youtube",
+   "action": "transcribe",
+   "reason": "NEED_SETUP on both machines (no transcription key configured); channel code unchanged since 1.6.1; approved to ship untested in 1.6.1.1"
+  },
+  {
+   "channel": "bilibili",
+   "action": "read",
+   "reason": "Fixture video BV1GJ411x7h7 now returns -404 on ubuntu and macmini (video gone); bilibili search/hot pass; channel code unchanged since 1.6.1; approved for 1.6.1.1"
   }
  ],
  "results": [
@@ -157,8 +131,8 @@
    "method": "real-cli",
    "backend": "bili-cli",
    "item_count": 2,
-   "at": "2026-11-04T23:42:23.715125+00:00",
-   "os": "Linux",
+   "at": "2026-11-04T23:43:32.708791+00:00",
+   "os": "Darwin",
    "source_sha256": "7d3227e4dcc5739f162a895d3395d7f1d88658c8892e73f646be6f6245ddc0d4",
    "passed": true,
    "error": null
@@ -169,8 +143,8 @@
    "method": "real-cli",
    "backend": null,
    "item_count": 0,
-   "at": "2026-11-04T23:42:22.857948+00:00",
-   "os": "Linux",
+   "at": "2026-11-04T23:43:31.906117+00:00",
+   "os": "Darwin",
    "source_sha256": "7d3227e4dcc5739f162a895d3395d7f1d88658c8892e73f646be6f6245ddc0d4",
    "passed": false,
    "error": "NOT_FOUND"
@@ -181,8 +155,8 @@
    "method": "real-cli",
    "backend": "bili-cli",
    "item_count": 2,
-   "at": "2026-11-04T23:42:22.120202+00:00",
-   "os": "Linux",
+   "at": "2026-11-04T23:43:30.865568+00:00",
+   "os": "Darwin",
    "source_sha256": "7d3227e4dcc5739f162a895d3395d7f1d88658c8892e73f646be6f6245ddc0d4",
    "passed": true,
    "error": null
@@ -193,8 +167,8 @@
    "method": "real-cli",
    "backend": null,
    "item_count": 0,
-   "at": "2026-11-04T23:42:24.638167+00:00",
-   "os": "Linux",
+   "at": "2026-11-04T23:43:33.385119+00:00",
+   "os": "Darwin",
    "source_sha256": "7d3227e4dcc5739f162a895d3395d7f1d88658c8892e73f646be6f6245ddc0d4",
    "passed": false,
    "error": "NOT_FOUND"
@@ -359,37 +333,49 @@
    "channel": "twitter",
    "action": "profile",
    "method": "real-cli",
-   "backend": null,
-   "item_count": 0,
-   "at": "2026-11-04T23:41:21.550996+00:00",
-   "os": "Linux",
+   "backend": "opencli",
+   "item_count": 1,
+   "at": "2026-11-04T23:43:14.938547+00:00",
+   "os": "Darwin",
    "source_sha256": "7d3227e4dcc5739f162a895d3395d7f1d88658c8892e73f646be6f6245ddc0d4",
-   "passed": false,
-   "error": "NEED_LOGIN"
+   "passed": true,
+   "error": null
   },
   {
    "channel": "twitter",
    "action": "search",
    "method": "real-cli",
-   "backend": null,
-   "item_count": 0,
-   "at": "2026-11-04T23:41:17.589142+00:00",
-   "os": "Linux",
+   "backend": "opencli",
+   "item_count": 2,
+   "at": "2026-11-04T23:43:09.807854+00:00",
+   "os": "Darwin",
    "source_sha256": "7d3227e4dcc5739f162a895d3395d7f1d88658c8892e73f646be6f6245ddc0d4",
-   "passed": false,
-   "error": "NEED_LOGIN"
+   "passed": true,
+   "error": null
+  },
+  {
+   "channel": "twitter",
+   "action": "thread",
+   "method": "real-cli",
+   "backend": "opencli",
+   "item_count": 50,
+   "at": "2026-11-04T23:43:21.537228+00:00",
+   "os": "Darwin",
+   "source_sha256": "7d3227e4dcc5739f162a895d3395d7f1d88658c8892e73f646be6f6245ddc0d4",
+   "passed": true,
+   "error": null
   },
   {
    "channel": "twitter",
    "action": "tweets",
    "method": "real-cli",
-   "backend": null,
-   "item_count": 0,
-   "at": "2026-11-04T23:41:23.265050+00:00",
-   "os": "Linux",
+   "backend": "opencli",
+   "item_count": 2,
+   "at": "2026-11-04T23:43:17.498360+00:00",
+   "os": "Darwin",
    "source_sha256": "7d3227e4dcc5739f162a895d3395d7f1d88658c8892e73f646be6f6245ddc0d4",
-   "passed": false,
-   "error": "NEED_LOGIN"
+   "passed": true,
+   "error": null
   },
   {
    "channel": "v2ex",
@@ -397,8 +383,8 @@
    "method": "real-cli",
    "backend": "v2ex-api",
    "item_count": 3,
-   "at": "2026-11-04T23:42:24.843879+00:00",
-   "os": "Linux",
+   "at": "2026-11-04T23:43:37.177784+00:00",
+   "os": "Darwin",
    "source_sha256": "7d3227e4dcc5739f162a895d3395d7f1d88658c8892e73f646be6f6245ddc0d4",
    "passed": true,
    "error": null
@@ -409,8 +395,8 @@
    "method": "real-cli",
    "backend": "v2ex-api",
    "item_count": 3,
-   "at": "2026-11-04T23:42:25.062142+00:00",
-   "os": "Linux",
+   "at": "2026-11-04T23:43:37.509100+00:00",
+   "os": "Darwin",
    "source_sha256": "7d3227e4dcc5739f162a895d3395d7f1d88658c8892e73f646be6f6245ddc0d4",
    "passed": true,
    "error": null
@@ -421,8 +407,8 @@
    "method": "real-cli",
    "backend": "v2ex-api",
    "item_count": 1,
-   "at": "2026-11-04T23:42:25.386868+00:00",
-   "os": "Linux",
+   "at": "2026-11-04T23:43:38.031336+00:00",
+   "os": "Darwin",
    "source_sha256": "7d3227e4dcc5739f162a895d3395d7f1d88658c8892e73f646be6f6245ddc0d4",
    "passed": true,
    "error": null
@@ -431,13 +417,13 @@
    "channel": "v2ex",
    "action": "user",
    "method": "real-cli",
-   "backend": null,
-   "item_count": 0,
-   "at": "2026-11-04T23:42:25.471221+00:00",
-   "os": "Linux",
+   "backend": "v2ex-api",
+   "item_count": 1,
+   "at": "2026-11-04T23:43:38.245865+00:00",
+   "os": "Darwin",
    "source_sha256": "7d3227e4dcc5739f162a895d3395d7f1d88658c8892e73f646be6f6245ddc0d4",
-   "passed": false,
-   "error": "TIMEOUT"
+   "passed": true,
+   "error": null
   },
   {
    "channel": "web",
@@ -469,8 +455,8 @@
    "method": "real-cli",
    "backend": null,
    "item_count": 0,
-   "at": "2026-11-04T23:41:45.785029+00:00",
-   "os": "Linux",
+   "at": "2026-11-04T23:43:36.978123+00:00",
+   "os": "Darwin",
    "source_sha256": "7d3227e4dcc5739f162a895d3395d7f1d88658c8892e73f646be6f6245ddc0d4",
    "passed": false,
    "error": "NEED_LOGIN"
@@ -481,8 +467,8 @@
    "method": "real-cli",
    "backend": "yt-dlp",
    "item_count": 1,
-   "at": "2026-11-04T23:41:25.157881+00:00",
-   "os": "Linux",
+   "at": "2026-11-04T23:43:26.560124+00:00",
+   "os": "Darwin",
    "source_sha256": "7d3227e4dcc5739f162a895d3395d7f1d88658c8892e73f646be6f6245ddc0d4",
    "passed": true,
    "error": null
@@ -493,8 +479,8 @@
    "method": "real-cli",
    "backend": "yt-dlp",
    "item_count": 2,
-   "at": "2026-11-04T23:41:26.096596+00:00",
-   "os": "Linux",
+   "at": "2026-11-04T23:43:27.599799+00:00",
+   "os": "Darwin",
    "source_sha256": "7d3227e4dcc5739f162a895d3395d7f1d88658c8892e73f646be6f6245ddc0d4",
    "passed": true,
    "error": null
@@ -505,8 +491,8 @@
    "method": "real-cli",
    "backend": "yt-dlp",
    "item_count": 1,
-   "at": "2026-11-04T23:41:27.190367+00:00",
-   "os": "Linux",
+   "at": "2026-11-04T23:43:29.280599+00:00",
+   "os": "Darwin",
    "source_sha256": "7d3227e4dcc5739f162a895d3395d7f1d88658c8892e73f646be6f6245ddc0d4",
    "passed": true,
    "error": null
@@ -517,8 +503,8 @@
    "method": "real-cli",
    "backend": null,
    "item_count": 0,
-   "at": "2026-11-04T23:41:27.303210+00:00",
-   "os": "Linux",
+   "at": "2026-11-04T23:43:29.365620+00:00",
+   "os": "Darwin",
    "source_sha256": "7d3227e4dcc5739f162a895d3395d7f1d88658c8892e73f646be6f6245ddc0d4",
    "passed": false,
    "error": "NEED_SETUP"
