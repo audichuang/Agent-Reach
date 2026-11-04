@@ -7,7 +7,7 @@ import json
 import os
 import re
 import urllib.error
-from urllib.parse import urlencode, urlsplit
+from urllib.parse import urlencode
 
 from agent_reach.runtime.result import (
     BAD_INPUT,

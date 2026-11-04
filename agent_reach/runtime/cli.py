@@ -23,6 +23,7 @@ from typing import Dict, List, Optional, Sequence, cast
 
 from agent_reach.channels import get_all_channels
 from agent_reach.channels.base import Action, Channel
+from agent_reach.channels.twitter import TwitterChannel
 
 from . import browser
 from .dispatch import DEFAULT_TIMEOUT, find_action, run_action
@@ -170,7 +171,7 @@ def _cmd_read(args: Sequence[str]) -> int:
     except _ArgError as exc:
         return _bad_input(None, "read", f"{exc}; usage: agent-reach read <url>")
     twitter = _channel("twitter")
-    if twitter is not None and twitter.is_status_url(ns.url) and ns.backend in (None, "opencli"):
+    if isinstance(twitter, TwitterChannel) and twitter.is_status_url(ns.url) and ns.backend in (None, "opencli"):
         # The web readers only see x.com's login wall; the thread action returns the real tweets.
         return _emit(run_action(twitter, "thread", {"target": ns.url}, timeout=ns.timeout, only_backend=ns.backend))
     readers = [ch for ch in unified_channels() if find_action(ch, "read")]
