@@ -11,6 +11,8 @@ from .boss import BossChannel
 from .facebook import FacebookChannel
 from .firecrawl import FirecrawlChannel
 from .github import GitHubChannel
+from .google_news import GoogleNewsChannel
+from .hackernews import HackerNewsChannel
 from .instagram import InstagramChannel
 from .linkedin import LinkedInChannel
 from .reddit import RedditChannel
@@ -34,6 +36,8 @@ ALL_CHANNELS: List[Channel] = [
     LinkedInChannel(),
     BossChannel(),
     V2EXChannel(),
+    GoogleNewsChannel(),
+    HackerNewsChannel(),
     XueqiuChannel(),
     XiaoyuzhouChannel(),
     WebChannel(),

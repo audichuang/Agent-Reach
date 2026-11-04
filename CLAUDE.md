@@ -22,6 +22,8 @@ Private downstream of github.com/Panniantong/Agent-Reach | License: MIT | Versio
 - `manage.DOWNSTREAM_SOURCE` — `update` reinstalls `audichuang/Agent-Reach@local`, never the public release
 - `manage._externally_managed` — an aghub symlink at `~/.agents/skills/agent-reach` is left alone
 - `backends/opencli._opencli_error` — OpenCLI "HTML instead of JSON" maps to UPSTREAM_BROKEN, not NEED_LOGIN, so added channels reach the public-web fallback
+- `channels/google_news.py`, `channels/hackernews.py` — no-browser news channels over OpenCLI (`google news`, `hackernews`); default level, tools `opencli`+`node`, no login
+- `backends/opencli.py` `opencli_public_items` — backend label `opencli-public` skips the browser binding, query slot and pacing in dispatch; use it for any OpenCLI site that needs no browser
 - Skill: narrowed description, dedicated skills (redbook) first, `references/downstream.md` and `references/firecrawl.md`
 
 ## Rules

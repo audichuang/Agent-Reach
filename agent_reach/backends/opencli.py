@@ -59,15 +59,15 @@ def _opencli_error(text: str, login_hint: str):
             "AUTH" in code or "LOGIN" in code or any(w in low for w in login_words)):
         # Upstream would send the user to their own Chrome; Reach logs in in its own browser.
         return ReachError(NEED_LOGIN, message, hint=login_hint or None)
-    return ReachError(UPSTREAM_BROKEN, message, hint=upstream_hint)
+    broken = ReachError(UPSTREAM_BROKEN, message, hint=upstream_hint)
+    broken.upstream_code = code
+    return broken
 
 
-def opencli_call(site: str, args, *, timeout: float, login_hint: str = ""):
-    """One bounded command, using an explicit existing browser binding. No retry."""
-    from agent_reach.runtime.browser_binding import environment
+def _run_opencli(site: str, args, *, timeout: float, env=None, login_hint: str = ""):
+    """Run one `opencli <site> ...` command and return its parsed JSON. No retry."""
     from agent_reach.runtime.run import CommandFailed, run_cmd
 
-    env = environment(site)
     argv = ["opencli", site, *args, "-f", "json"]
     try:
         out = run_cmd(argv, timeout=timeout, env=env)
@@ -79,9 +79,37 @@ def opencli_call(site: str, args, *, timeout: float, login_hint: str = ""):
         raise _opencli_error(out, login_hint) from None
     if isinstance(data, dict) and data.get("ok") is False:
         raise _opencli_error(out, login_hint)
+    return data
+
+
+def opencli_call(site: str, args, *, timeout: float, login_hint: str = ""):
+    """One bounded command, using an explicit existing browser binding. No retry."""
+    from agent_reach.runtime.browser_binding import environment
+
+    data = _run_opencli(site, args, timeout=timeout, env=environment(site), login_hint=login_hint)
     from agent_reach.runtime import browser
     browser.save_session()
     return data
+
+
+def opencli_public_items(site: str, args, *, timeout: float) -> list:
+    """Run a no-browser OpenCLI site command (backend label `opencli-public`).
+
+    Never touches the dedicated browser, its binding, or its saved session.
+    """
+    from agent_reach.runtime.result import NOT_FOUND, ReachError
+
+    try:
+        data = _run_opencli(site, args, timeout=timeout)
+    except ReachError as exc:
+        # Upstream reports "no results" as error code NOT_FOUND; that is not a broken backend.
+        if exc.upstream_code == "NOT_FOUND":
+            raise ReachError(NOT_FOUND, exc.message) from None
+        raise
+    items = opencli_items(data)
+    if not items:
+        raise ReachError(NOT_FOUND, "nothing found")
+    return items
 
 
 def opencli_items(rows) -> list:

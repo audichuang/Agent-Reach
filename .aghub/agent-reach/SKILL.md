@@ -83,6 +83,8 @@ agent-reach read <链接>                   # 按链接自动选渠道
 | linkedin | optional | jobs, read | `agent-reach login linkedin` |
 | boss | optional | search, read | `agent-reach login boss` |
 | v2ex | default | hot, node, read, user | - |
+| google-news | default | search, top | - |
+| hackernews | default | search, top, new, best, show | - |
 | xueqiu | optional | quote, search, hot_posts, hot_stocks | `agent-reach login xueqiu` |
 | xiaoyuzhou | optional | transcribe | - |
 | web | default | search, read | - |
