@@ -1,7 +1,7 @@
 ---
 name: agent-reach
 description: >
-  News, latest developments, financial news and what moves a stock; Google News and Hacker News; questions like "what do people say / reviews / reputation / has anyone hit this / is this a known issue" that need several original sources and community evidence; searching or reading X/Twitter, Reddit, Bilibili, V2EX, Xueqiu, Xiaoyuzhou podcasts, Boss Zhipin/LinkedIn, Facebook/Instagram; pages built-in fetch cannot read (403, verification page, JS shell, PDF) or many pages on one site, via Firecrawl scrape, URL discovery and crawl. Also installs Agent Reach, adds/removes platforms, logs in/out, runs doctor/check and updates. Read-only: never posts, comments or messages. XiaoHongShu goes to the redbook skill first; YouTube subtitles to yt-dlp-capture; last-30-days multi-platform engagement digests to last30days; research written up as a repo file to research; official docs and other plain reads stay with built-in tools.
+  News and headlines: today's or this week's top tech or industry news, financial news, what moves a stock, more outlets' coverage to summarise (e.g. an earnings call); Google News, Hacker News; comparing or judging tools, products or repos ("which is better / what do people say / has anyone hit this / known issue?") by what people on Reddit, X and other communities say; search or read X/Twitter, Reddit, Bilibili, V2EX, Xueqiu, Xiaoyuzhou, Boss Zhipin/LinkedIn, Facebook/Instagram; pages built-in fetch cannot read (403, captcha, JS shell, PDF), listing every page URL under a site or path, or many pages on one site, via Firecrawl scrape, map, crawl. Also installs, adds/removes platforms, logs in/out, doctor/check, updates Agent Reach. Read-only: never posts, comments or messages. XiaoHongShu goes to redbook first; YouTube subtitles to yt-dlp-capture; 30-day multi-platform digests to last30days; repo files or repo research reports to research; official docs and plain reads stay with built-in tools.
 metadata:
   homepage: https://github.com/Panniantong/Agent-Reach
   version: "{{VERSION}}"
@@ -34,9 +34,9 @@ Call only through `agent-reach`, never `opencli`, `twitter`, `rdt` or `mcporter`
 Users have complained "analysing without checking the news is wrong" and "no big picture": concluding from search snippets or a single source is the most common mistake here.
 
 1. **Find dated reports first**: `google-news search` (Chinese finance: `--lang zh-TW --region TW` or `--lang zh-CN --region CN`), `hackernews search` for tech/developer topics, then built-in search narrowed by date.
-2. **Read originals**: read the full text of several articles from different outlets. Snippets and headlines are not evidence for causal claims ("why did the stock drop" needs the article's own explanation). Google News links are redirects `read` cannot open: search the title to find the outlet's link and read that; if it will not load, use Firecrawl.
+2. **Read originals**: read the full text of several articles from different outlets. Snippets and headlines are not evidence for causal claims ("why did the stock drop" needs the article's own explanation). `google-news` gives only headline, outlet (`author`) and date; its `news.google.com/rss/articles/…` links are redirects that `read`, WebFetch and Firecrawl all return as an empty shell, so never fetch them. For each article you need, take the whole headline (drop the trailing " - outlet", no quotes) and find the original URL: `firecrawl_search` if present (in tests the first hit was the original), else `agent-reach web search "<headline>"`, else built-in search with the outlet name or `site:outlet-domain`; then `agent-reach read` that URL, or Firecrawl scrape if it will not load or web is rate-limited.
 3. **Add community angles**: pick channels from the table below; get the original post when quoting someone.
-4. **Deliver**: a link and publication date for every claim; per platform, what ran, what came back and what failed (`error.code`). Before saying "nothing found", be able to list the platforms and queries you tried.
+4. **Deliver**: the original link (not news.google.com) and publication date for every claim and every outlet; per platform, what ran, what came back and what failed (`error.code`). Before saying "nothing found", be able to list the platforms and queries you tried.
 
 | Topic | Channels |
 |---|---|
@@ -61,7 +61,7 @@ When WebFetch or `read` hits 403, a timeout, a connection reset, a Cloudflare/Ve
 
 - One page → scrape. Three or more pages on one site, or you need its URL list → map, then scrape page by page; many pages → crawl, narrowed with `--limit` and `--include`.
 - Success = non-empty body text, not `ok`. Verification pages and empty shells do not count.
-- Firecrawl reads; it does not find news (its search with news/time filters did not work in tests). Details in [Firecrawl](references/firecrawl.md).
+- Firecrawl does not find news (its search with news/time filters did not work in tests); using `firecrawl_search` to turn a known headline into the original URL is fine. Details in [Firecrawl](references/firecrawl.md).
 
 ## Results and errors
 
@@ -72,15 +72,15 @@ When WebFetch or `read` hits 403, a timeout, a connection reset, a Cloudflare/Ve
 |---|---|
 | `NEED_SETUP` | Missing dependency or key. Run `agent-reach add <channel>` as hinted; for a key, the user provides it, then `agent-reach configure <key>` |
 | `NEED_LOGIN` | If `message` mentions 403 or HTML instead of JSON, handle it as the `UPSTREAM_BROKEN` row. For browser-login channels (`login.via: browser` in `channels`; not Bilibili), first `agent-reach login <channel> --import-existing` (copies the login from the user's signed-in Chrome, no window), then `agent-reach check <channel> --search --text`. Only if that returns `NEED_SETUP` or still fails, ask the user to run `agent-reach login <channel>` themselves; never log in for them or ask for a password |
-| `UPSTREAM_BROKEN` | The platform is having trouble; `message` is what was reported. A 403 or "HTML instead of JSON" is usually a WAF or rate limit, not a logout: try `--backend public-web` or another action of the channel (e.g. `reddit subreddit`, `reddit read`). Tell the user by platform name, without naming tools; run `agent-reach update` once, after they agree, only if the message points to an outdated tool; never retry in a loop |
+| `UPSTREAM_BROKEN` | The platform is having trouble; `message` is what was reported. A 403 or "HTML instead of JSON" is usually a WAF or rate limit, not a logout: try `--backend public-web`; if that fails too, run another action of the channel (e.g. `reddit subreddit <relevant sub>`, `reddit read`), do not just suggest it. Tell the user by platform name, without naming tools; run `agent-reach update` once, after they agree, only if the message points to an outdated tool; never retry in a loop |
 | `TIMEOUT` | Check the failed stage and channel status; do not retry or reopen windows in a loop |
-| `RATE_LIMITED` | The platform rate-limited; Reach paused the channel. Wait `retry_after_seconds`; do not switch backends |
+| `RATE_LIMITED` | From the site tool: the platform rate-limited and Reach pauses the whole channel for an hour; stop using it, do not switch backends. From `--backend public-web`: the shared web search (Exa) is limited, so `web search` and `read` of ordinary pages are paused too, but the platform is not; run another action of the channel as in the row above |
 | `PLATFORM_BLOCKED` | The platform wants verification (captcha/risk check). Stop; the user resolves it on the official page. Do not switch accounts or backends |
 | `BUSY` | The browser stayed full for the 2-minute wait, or the user has a login window open. Retry later, or after the user says they are logged in; do not close the window or switch profiles |
 | `NOT_FOUND` | Content does not exist; check the link or ID |
 | `BAD_INPUT` | Wrong arguments; run `agent-reach channels` for usage |
 
-`PLATFORM_BLOCKED`, `RATE_LIMITED` and `BUSY` are hard stops: no retrying with other accounts, backends or browsers. A network failure or a failure on one machine does not mean "the platform requires login". If the user skips login, still deliver the public results already gathered.
+`PLATFORM_BLOCKED`, `RATE_LIMITED` and `BUSY` are hard stops: no retrying the stopped route with other accounts, backends or browsers (public-web rate limits: see above). A network failure or a failure on one machine does not mean "the platform requires login". If the user skips login, still deliver the public results already gathered.
 
 ## Login and the dedicated browser
 

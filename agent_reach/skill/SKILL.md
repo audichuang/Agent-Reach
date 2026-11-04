@@ -1,7 +1,7 @@
 ---
 name: agent-reach
 description: >
-  查新闻、最新动态、财经消息与个股消息面，Google News、Hacker News；回答"大家怎么说/评价/口碑/有没有人遇到/是不是已知问题"这类要靠多来源原文与社区佐证的问题；搜索或读取 X/推特、Reddit、B站、V2EX、雪球、小宇宙播客、Boss直聘/LinkedIn、Facebook/Instagram；内置抓取读不到的网页（403、验证页、JS 空壳、PDF）或同站多页，用 Firecrawl 抓页、找 URL、爬站。也负责 Agent Reach 的安装、加减平台、登录/退出、doctor/check 诊断与更新。只读，不发帖、评论、私信。小红书先用 redbook 技能；YouTube 字幕用 yt-dlp-capture；最近 30 天多平台热度汇总用 last30days；调研结果要写成仓库文件用 research；查官方文档等普通读取用内置工具。
+  查新闻与头条：今天/本周科技圈或某行业有什么重要新闻、财经与个股消息面、要多家媒体报道或多查几家来统整（如法说会），Google News、Hacker News；比较或评价工具、产品、repo——"哪个好用/大家怎么说/口碑/有没有人遇到/是不是已知问题"，看 Reddit、X 等社区上的人怎么评价；搜索或读取 X/推特、Reddit、B站、V2EX、雪球、小宇宙播客、Boss直聘/LinkedIn、Facebook/Instagram；内置抓取读不到的网页（403、验证页、JS 空壳、PDF）、列出某站或某路径下全部页面 URL、读同站多页，用 Firecrawl 抓页、map、爬站。也负责 Agent Reach 的安装、加减平台、登录/退出、doctor/check 诊断与更新。只读，不发帖、评论、私信。小红书先用 redbook 技能；YouTube 字幕用 yt-dlp-capture；最近 30 天多平台热度汇总用 last30days；调研结果要写成仓库文件或 repo 调研报告用 research；查官方文档等普通读取用内置工具。
 metadata:
   homepage: https://github.com/Panniantong/Agent-Reach
   version: "{{VERSION}}"
@@ -34,9 +34,9 @@ agent-reach read <链接>                   # 按链接自动选渠道
 用户抱怨过"没有对照新闻就胡乱分析""不够大局观"：只看搜索摘要、只查一个来源就下结论是这里最常见的错。
 
 1. **先找带日期的报道**：`google-news search`（中文财经加 `--lang zh-TW --region TW` 或 `--lang zh-CN --region CN`）、科技/开发者话题加 `hackernews search`，再用自带搜索按时间收窄。
-2. **读原文**：挑不同媒体的几篇读全文。摘要和标题不能当因果证据（"股价为什么跌"必须有原文里的说法）。Google News 的链接是跳转页，`read` 打不开：用标题搜到媒体原链接再读，读不到走 Firecrawl。
+2. **读原文**：挑不同媒体的几篇读全文。摘要和标题不能当因果证据（"股价为什么跌"必须有原文里的说法）。`google-news` 只给标题、媒体（`author`）和日期；它的 `news.google.com/rss/articles/…` 链接是跳转页，`read`、WebFetch、Firecrawl 都只拿到空壳，不要去抓。每篇要读的：拿整句标题（去掉结尾" - 媒体名"、不加引号）找原文 URL——有 `firecrawl_search` 就用它（实测第一条即原文），否则 `agent-reach web search "<标题>"`，再不行用自带搜索加媒体名或 `site:媒体域名`；然后 `agent-reach read` 原文 URL，读不到或 web 被限流就用 Firecrawl scrape。
 3. **补社区视角**：按下表挑渠道；有人说法时尽量拿到原帖。
-4. **交付**：每个论点附链接和发布日期；按平台列出跑了什么、拿到什么、哪些失败（`error.code`）。说"查无"之前要能列出查过的平台和查询词。
+4. **交付**：每个论点、每家媒体附原文链接（不是 news.google.com）和发布日期；按平台列出跑了什么、拿到什么、哪些失败（`error.code`）。说"查无"之前要能列出查过的平台和查询词。
 
 | 话题 | 渠道 |
 |---|---|
@@ -61,7 +61,7 @@ WebFetch 或 `read` 遇到 403、超时、连线重置、Cloudflare/Vercel 验�
 
 - 单页 → scrape。同一站要读 3 页以上或需要 URL 列表 → 先 map 再逐页 scrape；要很多页 → crawl，用 `--limit`、`--include` 收窄。
 - 成功 = 拿到非空正文，不是 `ok`。验证页、空壳不算。
-- Firecrawl 用来读，不用来找新闻（它的 search 加新闻/时间过滤实测无效）。细节见 [Firecrawl](references/firecrawl.md)。
+- Firecrawl 不用来找新闻（它的 search 加新闻/时间过滤实测无效）；但用 `firecrawl_search` 把已知标题换成原文 URL 可以。细节见 [Firecrawl](references/firecrawl.md)。
 
 ## 结果与错误
 
@@ -72,15 +72,15 @@ WebFetch 或 `read` 遇到 403、超时、连线重置、Cloudflare/Vercel 验�
 |---|---|
 | `NEED_SETUP` | 缺依赖或密钥。按提示 `agent-reach add <渠道>`；要密钥时请用户本人提供，再 `agent-reach configure <key>` |
 | `NEED_LOGIN` | `message` 提到 403 或 HTML instead of JSON 时按 `UPSTREAM_BROKEN` 那行处理。浏览器登录的渠道（`channels` 里 `login.via: browser`；B 站不是）先 `agent-reach login <渠道> --import-existing`（从用户已登录的 Chrome 复制登录，不开窗口），再 `agent-reach check <渠道> --search --text`。返回 `NEED_SETUP` 或仍失败，才请用户本人 `agent-reach login <渠道>`；你绝不代登、不要密码 |
-| `UPSTREAM_BROKEN` | 平台暂时有问题，`message` 是原话。403、"HTML instead of JSON" 多半是风控或限流，不代表登出：换 `--backend public-web` 或同渠道其他动作（如 `reddit subreddit`、`reddit read`）。用平台名告诉用户，不说工具名；原话说明工具过时，才在用户同意后跑一次 `agent-reach update`；不循环重试 |
+| `UPSTREAM_BROKEN` | 平台暂时有问题，`message` 是原话。403、"HTML instead of JSON" 多半是风控或限流，不代表登出：换 `--backend public-web`；它也失败就直接跑同渠道其他动作（如 `reddit subreddit <相关板块>`、`reddit read`），不是只建议。用平台名告诉用户，不说工具名；原话说明工具过时，才在用户同意后跑一次 `agent-reach update`；不循环重试 |
 | `TIMEOUT` | 看失败阶段和渠道状态；不反复重试、不反复开窗 |
-| `RATE_LIMITED` | 平台限流，Reach 已暂停该渠道；按 `retry_after_seconds` 等，不换后端 |
+| `RATE_LIMITED` | 站内工具返回的：平台限流，Reach 暂停整个渠道一小时，停用该渠道、不换后端。`--backend public-web` 返回的：限流的是它共用的网页搜索（Exa；`web search`、普通网页的 `read` 同时停用），平台本身没被暂停，照上一行跑同渠道其他动作 |
 | `PLATFORM_BLOCKED` | 平台要求验证（验证码/风控）。停下，请用户在官方页面处理；不换账号、不换后端 |
 | `BUSY` | 浏览器排队 2 分钟仍满，或用户正开着登录窗口。过一会儿、或等用户说登好了再试；不关窗口、不切换配置 |
 | `NOT_FOUND` | 内容不存在，核对链接或 ID |
 | `BAD_INPUT` | 参数不对，跑 `agent-reach channels` 看用法 |
 
-`PLATFORM_BLOCKED`、`RATE_LIMITED`、`BUSY` 是硬停：不换账号、后端或浏览器反复请求。网络失败或某台机器的失败不能说成"平台必须登录"。用户跳过登录时，已拿到的公开结果照样交付。
+`PLATFORM_BLOCKED`、`RATE_LIMITED`、`BUSY` 是硬停：被停的那条路不换账号、后端或浏览器反复请求（public-web 的限流例外见上）。网络失败或某台机器的失败不能说成"平台必须登录"。用户跳过登录时，已拿到的公开结果照样交付。
 
 ## 登录与专用浏览器
 
