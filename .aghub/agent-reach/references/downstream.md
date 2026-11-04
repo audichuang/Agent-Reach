@@ -14,3 +14,7 @@
 - `agent-reach update` 只会重装私有 `local` 分支（`uv tool install --force git+https://github.com/audichuang/Agent-Reach.git@local`），不会装公开上游。私有 GitHub 认证失败就照实报告，不改用公开上游绕过。
 - skill 由 aghub 从仓库 `.aghub/agent-reach/` 同步（那是渲染过的副本），不是 `agent-reach setup` 写入的；`~/.agents/skills/agent-reach` 是 aghub 的链接，Reach 不会覆盖它。更新 CLI 之后同步 skill：`aghub-cli source sync audichuang/Agent-Reach --update --yes`；从 1.5 首次切过来时 skill 路径换了，改用 `aghub-cli source sync audichuang/Agent-Reach --skill agent-reach --install-missing --yes`。
 - CLI 包与 skill 是两份安装，版本号相同不代表来源相同；更新后两边都要核对。
+
+## 跨机器调用
+
+- MacBook Pro 上的 `agent-reach` 是一个 shim，经 SSH 在 ubuntu 上执行命令；登录状态、专用浏览器、`~/.agent-reach` 都在 ubuntu。参数里的本地文件路径会按 ubuntu 解析，Mac 上的路径传过去找不到；要处理本地文件先自己读出内容，或改传 URL。
