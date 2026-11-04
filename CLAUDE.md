@@ -2,7 +2,7 @@
 
 ## Project
 Agent Reach — one read-only CLI (`agent-reach <channel> <action>`) that gives AI agents search/read access to internet platforms, returning one JSON envelope per call.
-Private downstream of github.com/Panniantong/Agent-Reach | License: MIT | Version: 1.6.0
+Private downstream of github.com/Panniantong/Agent-Reach | License: MIT | Version: 1.6.1.1
 
 ## Commands
 - `uv venv && uv pip install -e . pytest` — Dev install (keep it out of the user's real `~/.agent-reach`)
@@ -31,6 +31,7 @@ Private downstream of github.com/Panniantong/Agent-Reach | License: MIT | Versio
 ## Rules
 - NEVER modify upstream open source projects' source code; channels only route and call public APIs/CLIs
 - Version in `pyproject.toml` and `agent_reach/__init__.py` must match
+- Downstream releases use a fourth number on top of the upstream version (`1.6.1.1`, tag `v1.6.1.1`); `update_notice.version_tuple` only parses all-numeric parts, so no `.post`/`+local`. On upstream sync take upstream's version and CHANGELOG head
 - Use a new branch for changes and target PRs to `local`, this private downstream's deployment branch. Keep `main` for upstream history.
 - Upstream sync: fast-forward `main` to `upstream/main`, then merge `main` into a branch off `local`
 - Run `pytest tests/ -v` before committing — all tests must pass

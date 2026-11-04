@@ -6,6 +6,30 @@ All notable changes to this project will be documented in this file.
 
 ---
 
+## [1.6.1.1] - 2026-11-05
+
+Private downstream release on top of upstream 1.6.1. 私有下游版本，基于上游 1.6.1。
+
+中文：
+
+- 新增两个免浏览器、免登录的新闻渠道：`google-news`（search / top，可指定语言与地区）和 `hackernews`（search / top / new / best / show）。
+- Reddit 站内工具被 403 挡下（返回网页而不是数据）时，不再误报"需要登录"，会自动改走公开网页（#9）。
+- `read` 遇到 x.com 贴文链接改用 `twitter thread`，不再回登录墙空壳；GitHub blob/tree 链接交给网页读取；`twitter thread` 支持 `--limit`（#10）。
+- 新增 `agent-reach login <渠道> --self-heal`：代理可自己从 Chrome 补回过期登录，但用户退出过或手动登录过的渠道会被拒绝（#13）。
+- `agent-reach update` 版本号不变也会重装私有 `local` 分支，并如实报告同步失败（#14）。
+- Skill：新闻与调研改为默认路径（先查带日期的新闻、读多家原文、每条附链接与日期），补上 Firecrawl 的触发条件、登录自救与子代理预检（#12）。
+
+English:
+
+- Two no-browser, no-login news channels: `google-news` (search / top, language and region) and `hackernews` (search / top / new / best / show).
+- When Reddit's site tool is blocked with a 403 HTML page it is no longer reported as "needs login"; the public-web route is tried instead (#9).
+- `read` on an x.com status link uses `twitter thread` instead of returning a login-wall shell; GitHub blob/tree links go to the web reader; `twitter thread` accepts `--limit` (#10).
+- `agent-reach login <channel> --self-heal` lets an agent restore an expired login from Chrome, but refuses channels the user logged out of or logged into manually (#13).
+- `agent-reach update` reinstalls the private `local` branch even when the version number is unchanged and reports a failed sync (#14).
+- Skill: news and research are a default path (dated news first, read several originals, link and date per claim), with Firecrawl triggers, login self-heal and a subagent preflight (#12).
+
+---
+
 ## [1.6.1] - 2026-11-01
 
 中文：

@@ -4,7 +4,7 @@ description: >
   查新闻与头条：今天/本周科技圈或某行业有什么重要新闻、财经与个股消息面、要多家媒体报道或多查几家来统整（如法说会），Google News、Hacker News；比较或评价工具、产品、repo——"哪个好用/大家怎么说/口碑/有没有人遇到/是不是已知问题"，看 Reddit、X 等社区上的人怎么评价；搜索或读取 X/推特、Reddit、B站、V2EX、雪球、小宇宙播客、Boss直聘/LinkedIn、Facebook/Instagram；内置抓取读不到的网页（403、验证页、JS 空壳、PDF）、列出某站或某路径下全部页面 URL、读同站多页，用 Firecrawl 抓页、map、爬站。也负责 Agent Reach 的安装、加减平台、登录/退出、doctor/check 诊断与更新。只读，不发帖、评论、私信。小红书先用 redbook 技能；YouTube 字幕用 yt-dlp-capture；最近 30 天多平台热度汇总用 last30days；调研结果要写成仓库文件或 repo 调研报告用 research；查官方文档等普通读取用内置工具。
 metadata:
   homepage: https://github.com/Panniantong/Agent-Reach
-  version: "1.6.1"
+  version: "1.6.1.1"
 ---
 
 # Agent Reach
