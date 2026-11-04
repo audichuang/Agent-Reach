@@ -48,12 +48,12 @@ def _opencli_error(text: str, login_hint: str):
         return ReachError(PLATFORM_BLOCKED, message, hint=upstream_hint)
     if code in {"RATE_LIMITED", "RATE_LIMIT"} or any(w in low for w in ("http 429", "too many requests", "访问过于频繁")):
         return ReachError(RATE_LIMITED, message)
-    if "html instead of json" in low:
+    if "html instead of json" in low and "AUTH" not in code:
         # Ambiguous (login wall / rate limit / WAF): not proof of a missing login, so stay
         # retryable and let dispatch try the public-web fallback first.
         extra = "If the public fallback also fails, the site may need a login."
         return ReachError(UPSTREAM_BROKEN, message,
-                          hint=" ".join(h for h in (upstream_hint, login_hint, extra) if h))
+                          hint=" ".join(h for h in (login_hint, extra) if h))
     login_words = ("login", "log in", "logged in", "sign in", "http 401", "登录")
     if not re.search(r"\bHTTP 404\b", message, re.I) and (
             "AUTH" in code or "LOGIN" in code or any(w in low for w in login_words)):
