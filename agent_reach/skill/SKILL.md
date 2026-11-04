@@ -71,7 +71,7 @@ WebFetch 或 `read` 遇到 403、超时、连线重置、Cloudflare/Vercel 验�
 | error.code | 怎么办 |
 |---|---|
 | `NEED_SETUP` | 缺依赖或密钥。按提示 `agent-reach add <渠道>`；要密钥时请用户本人提供，再 `agent-reach configure <key>` |
-| `NEED_LOGIN` | `message` 提到 403 或 HTML instead of JSON 时按 `UPSTREAM_BROKEN` 那行处理。浏览器登录的渠道（`channels` 里 `login.via: browser`；B 站不是）且用户没退出过、也没手动登录过该渠道，才先 `agent-reach login <渠道> --import-existing`（从用户已登录的 Chrome 复制登录，不开窗口），再重跑原来失败的那个动作验证（不用 `check --search`：它不测站内动作）。用户退出或手动登录过该渠道、或不确定时，先问用户并确认来源账号，不自动导入。返回 `NEED_SETUP` 或仍失败，才请用户本人 `agent-reach login <渠道>`；你绝不代登、不要密码 |
+| `NEED_LOGIN` | `message` 提到 403 或 HTML instead of JSON 时按 `UPSTREAM_BROKEN` 那行处理。浏览器登录的渠道（`channels` 里 `login.via: browser`；B 站不是）先自己跑 `agent-reach login <渠道> --self-heal`（从用户已登录的 Chrome 重新复制登录，不开窗口；用户退出过或手动选过账号时它会拒绝，返回 `NEED_LOGIN`，什么都不复制），成功就重跑原来失败的那个动作验证（不用 `check --search`：它不测站内动作）。被拒绝、返回 `NEED_SETUP` 或仍失败，才问用户：用户同意再 `agent-reach login <渠道> --import-existing`，或请用户本人 `agent-reach login <渠道>`；你绝不代登、不要密码 |
 | `UPSTREAM_BROKEN` | 平台暂时有问题，`message` 是原话。403、"HTML instead of JSON" 多半是风控或限流，不代表登出：只有 `channels` 里该动作的 public_web 非空、且 `meta.attempts` 还没试过 public-web 时才换 `--backend public-web`（google-news、hackernews 等不支持，已 add 的渠道会自动试过一次）；否则直接跑同渠道其他动作（如 `reddit subreddit <相关板块>`、`reddit read`），不是只建议。用平台名告诉用户，不说工具名；原话说明工具过时，才在用户同意后跑一次 `agent-reach update`；不循环重试 |
 | `TIMEOUT` | 看失败阶段和渠道状态；不反复重试、不反复开窗 |
 | `RATE_LIMITED` | 站内工具返回的：平台限流，Reach 暂停整个渠道一小时，停用该渠道、不换后端。`--backend public-web` 返回的：限流的是它共用的网页搜索（Exa；`web search`、普通网页的 `read` 同时停用），平台本身没被暂停，照上一行跑同渠道其他动作 |
@@ -84,7 +84,7 @@ WebFetch 或 `read` 遇到 403、超时、连线重置、Cloudflare/Vercel 验�
 
 ## 登录与专用浏览器
 
-浏览器渠道共用一个专用浏览器（优先 CloakBrowser，否则本机 Chrome），默认无头，闲置 10 分钟自动关闭，下次调用自动重开。第一次用某站时，若用户 Chrome 连着 OpenCLI 扩展，会自动复制该站登录。刷新、选来源、退出等见 [会话与专用浏览器](references/sessions.md)：用户要登录、退出、换账号，或 `--import-existing` 也救不回时读它。
+浏览器渠道共用一个专用浏览器（优先 CloakBrowser，否则本机 Chrome），默认无头，闲置 10 分钟自动关闭，下次调用自动重开。第一次用某站时，若用户 Chrome 连着 OpenCLI 扩展，会自动复制该站登录。刷新、选来源、退出等见 [会话与专用浏览器](references/sessions.md)：用户要登录、退出、换账号，或 `--self-heal` 也救不回时读它。
 
 ## 平台注意
 
@@ -111,7 +111,7 @@ WebFetch 或 `read` 遇到 403、超时、连线重置、Cloudflare/Vercel 验�
 |---|---|
 | 加上某个平台 | `agent-reach add <渠道>`，依赖自动装好；只告诉用户他必须做的事（登录或提供密钥） |
 | 去掉某个平台 | `agent-reach remove <渠道>` |
-| 登录 / 登录过期 | 浏览器登录的渠道，用户没退出过、也没手动登录过时先 `agent-reach login <渠道> --import-existing`；否则先问用户。不行再 `agent-reach login <渠道>`，由用户本人在打开的窗口里登录 |
+| 登录 / 登录过期 | 浏览器登录的渠道先自己跑 `agent-reach login <渠道> --self-heal` 再重跑失败的动作；被拒绝或仍失败才问用户：同意后 `--import-existing`，或 `agent-reach login <渠道>` 由用户本人在打开的窗口里登录 |
 | 退出登录 | `agent-reach logout <渠道>` |
 | 看看状态 / 哪些能用 | `agent-reach doctor --text`（只看本地状态）；实测跑 `agent-reach check <渠道…> --text` |
 | 升级 / 更新 | `agent-reach update` |

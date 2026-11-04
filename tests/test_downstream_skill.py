@@ -36,4 +36,4 @@ def test_skill_text_guards_session_overwrite_and_check_misuse():
     for name in ("SKILL.md", "SKILL_en.md"):
         t = files[name]
         assert "public_web" in t
-        assert ("没退出过" in t) or ("never logged out" in t)
+        assert "login <渠道> --self-heal" in t or "login <channel> --self-heal" in t

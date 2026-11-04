@@ -55,7 +55,7 @@
    "prompt": "我剛跑 agent-reach twitter search \"bun 1.3\" 得到這個，接下來怎麼辦？幫我繼續查。\n{\"schema_version\": 1, \"ok\": false, \"channel\": \"twitter\", \"action\": \"search\", \"backend\": null, \"items\": [], \"meta\": {\"attempts\": [{\"backend\": \"opencli\", \"result\": \"NEED_LOGIN\", \"message\": \"no ct0 cookie\"}]}, \"error\": {\"code\": \"NEED_LOGIN\", \"message\": \"Not logged in to x.com\", \"hint\": \"Run `agent-reach login twitter` and ask the user to log in to x.com in the Agent Reach browser window it opens. Never log in for them.\"}}",
    "origin": "MacBook Pro 7f04490e:2167→2190 `login twitter --import-existing` 免使用者動手修好；10-25 三個子代理照舊規則直接放棄",
    "expectations": [
-    "First tries to recover without the user when the channel has no logout/manual-login record: runs (or, if state-changing commands are not allowed, states it would run) the CLI's self-heal import, then re-runs the action that failed to verify",
+    "First tries to recover without the user when the channel has no logout/manual-login record: runs (or, if state-changing commands are not allowed, states it would run) `agent-reach login twitter --self-heal`, then re-runs the action that failed to verify",
     "Only asks the user to log in personally after that recovery fails",
     "Never logs in for the user, asks for passwords or cookies, or calls twitter-cli/opencli directly",
     "Keeps going with the other public sources meanwhile instead of stopping the whole research"

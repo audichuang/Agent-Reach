@@ -20,10 +20,11 @@
 4. 本机有多个浏览器都登录了该站时：`agent-reach browser profiles` 列出来源，`agent-reach browser use <ID>` 选定一个，不随机切换。
 5. `agent-reach login <渠道> --import-existing` 主动重新复制一次该站登录，不打开窗口。没找到可复制的登录，或 OpenCLI Bridge 没在运行时，返回 `NEED_SETUP`，已保存的会话不变。
 6. 用户本人在专用窗口里登录过，或执行过 `logout` / `remove`，就不再自动复制，避免已退出的登录复活。
+7. `agent-reach login <渠道> --self-heal` 给代理自救用：行为同 `--import-existing`（绕过已有快照重新复制），但上一条的记录存在时拒绝，返回 `NEED_LOGIN`（message 带记录时间），什么都不复制。只适用浏览器登录的渠道。
 
 ## 需要本人登录时
 
-- 浏览器登录的渠道实际返回 `NEED_LOGIN` 时且用户没退出过、也没手动登录过该渠道，才先跑 `agent-reach login <渠道> --import-existing`（`--import-existing` 会覆盖已退出的状态和手动选的账号），再重跑原来失败的动作验证（不用 `check --search`，它不测站内动作）；退出或手动登录过、或不确定时先问用户并确认来源账号；仍失败、且剩下的任务确实需要这条路径时，才请用户登录。正文旁边有个登录按钮不算要求登录。
+- 浏览器登录的渠道实际返回 `NEED_LOGIN` 时，先自己跑 `agent-reach login <渠道> --self-heal`，再重跑原来失败的动作验证（不用 `check --search`，它不测站内动作）。被拒绝（用户退出过或手动登录过）时不要硬导入：问用户并确认来源账号，同意后才 `agent-reach login <渠道> --import-existing`（会覆盖退出状态和手动选的账号）；仍失败、且剩下的任务确实需要这条路径时，才请用户登录。正文旁边有个登录按钮不算要求登录。
 - `agent-reach login <渠道>` 打开专用浏览器到该站登录页，用户本人完成登录。你不代登、不要密码、不输出 Cookie。
 - 返回结果里的 `next` 写了后续步骤就照做；部分原生工具渠道（如雪球）登录后要再跑 `agent-reach login <渠道> --sync`。
 - 用户完成后，重新执行原来的动作验证。

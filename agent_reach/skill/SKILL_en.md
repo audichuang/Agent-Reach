@@ -71,7 +71,7 @@ When WebFetch or `read` hits 403, a timeout, a connection reset, a Cloudflare/Ve
 | error.code | What to do |
 |---|---|
 | `NEED_SETUP` | Missing dependency or key. Run `agent-reach add <channel>` as hinted; for a key, the user provides it, then `agent-reach configure <key>` |
-| `NEED_LOGIN` | If `message` mentions 403 or HTML instead of JSON, handle it as the `UPSTREAM_BROKEN` row. For browser-login channels (`login.via: browser` in `channels`; not Bilibili), and the user has never logged out of or manually logged in to that channel, first `agent-reach login <channel> --import-existing` (copies the login from the user's signed-in Chrome, no window), then re-run the action that failed (not `check --search`, which does not test in-site actions). If the user logged out or logged in manually, or you are unsure, ask the user and confirm the source account first; do not import automatically. Only if that returns `NEED_SETUP` or still fails, ask the user to run `agent-reach login <channel>` themselves; never log in for them or ask for a password |
+| `NEED_LOGIN` | If `message` mentions 403 or HTML instead of JSON, handle it as the `UPSTREAM_BROKEN` row. For browser-login channels (`login.via: browser` in `channels`; not Bilibili), run `agent-reach login <channel> --self-heal` yourself (re-copies the login from the user's signed-in Chrome, no window; it refuses with `NEED_LOGIN` and copies nothing if the user logged out or manually chose the account), and if it succeeds re-run the action that failed (not `check --search`, which does not test in-site actions). Only if it is refused, returns `NEED_SETUP` or still fails, ask the user: with their consent `agent-reach login <channel> --import-existing`, or ask them to run `agent-reach login <channel>` themselves; never log in for them or ask for a password |
 | `UPSTREAM_BROKEN` | The platform is having trouble; `message` is what was reported. A 403 or "HTML instead of JSON" is usually a WAF or rate limit, not a logout: try `--backend public-web` only if `channels` shows a non-empty public_web for that action and `meta.attempts` has not tried public-web yet (google-news, hackernews and others do not support it; added channels already tried it once); otherwise run another action of the channel (e.g. `reddit subreddit <relevant sub>`, `reddit read`), do not just suggest it. Tell the user by platform name, without naming tools; run `agent-reach update` once, after they agree, only if the message points to an outdated tool; never retry in a loop |
 | `TIMEOUT` | Check the failed stage and channel status; do not retry or reopen windows in a loop |
 | `RATE_LIMITED` | From the site tool: the platform rate-limited and Reach pauses the whole channel for an hour; stop using it, do not switch backends. From `--backend public-web`: the shared web search (Exa) is limited, so `web search` and `read` of ordinary pages are paused too, but the platform is not; run another action of the channel as in the row above |
@@ -84,7 +84,7 @@ When WebFetch or `read` hits 403, a timeout, a connection reset, a Cloudflare/Ve
 
 ## Login and the dedicated browser
 
-Browser channels share one dedicated browser (CloakBrowser preferred, else installed Chrome). It runs headless, closes after 10 idle minutes and reopens on the next call. The first time a site is used, if the user's Chrome is connected to the OpenCLI extension, that site's login is copied automatically. Refreshing, choosing a source and logging out are in [Sessions](references/sessions.md): read it when the user wants to log in, log out or switch accounts, or when `--import-existing` does not fix a login.
+Browser channels share one dedicated browser (CloakBrowser preferred, else installed Chrome). It runs headless, closes after 10 idle minutes and reopens on the next call. The first time a site is used, if the user's Chrome is connected to the OpenCLI extension, that site's login is copied automatically. Refreshing, choosing a source and logging out are in [Sessions](references/sessions.md): read it when the user wants to log in, log out or switch accounts, or when `--self-heal` does not fix a login.
 
 ## Platform notes
 
@@ -111,7 +111,7 @@ After `agent-reach setup`, show `result.installation_report.markdown` to the use
 |---|---|
 | Add a platform | `agent-reach add <channel>`; dependencies install automatically. Tell the user only what they must do (log in or provide a key) |
 | Remove a platform | `agent-reach remove <channel>` |
-| Log in / login expired | For browser-login channels the user has not logged out of or manually logged in to, first `agent-reach login <channel> --import-existing`; otherwise ask the user first. If that fails, `agent-reach login <channel>` and the user logs in themselves in the window that opens |
+| Log in / login expired | For browser-login channels run `agent-reach login <channel> --self-heal` yourself, then re-run the failed action; only if refused or still failing ask the user: with consent `--import-existing`, or `agent-reach login <channel>` and the user logs in themselves in the window that opens |
 | Log out | `agent-reach logout <channel>` |
 | Status / what works | `agent-reach doctor --text` (local state only); for a live test `agent-reach check <channel...> --text` |
 | Upgrade / update | `agent-reach update` |
