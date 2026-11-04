@@ -423,13 +423,70 @@ def test_old_shared_venv_only_loses_agent_reach(monkeypatch, tmp_path):
     assert ran[0][-4:] == ["uninstall", "-y", "-q", "agent-reach"]
 
 
+def test_update_reinstalls_downstream_even_when_the_version_is_unchanged(env, monkeypatch):
+    monkeypatch.setattr(manage, "update_check", lambda: {"current": "2.0.0", "latest": "2.0.0",
+                                                         "update_available": False})
+    monkeypatch.setattr(manage, "install_method", lambda: "uv")
+    monkeypatch.setattr(manage.tools, "resolve", lambda c: "/fake/uv")
+    calls = []
+
+    class Done:
+        returncode, stderr = 0, ""
+        stdout = json.dumps({"ok": True, "result": {"user_actions": []}})
+
+    monkeypatch.setattr(manage.subprocess, "run", lambda cmd, **kw: calls.append(cmd) or Done())
+    out = manage.update()
+    assert calls[0] == ["/fake/uv", "tool", "install", "--force", manage.DOWNSTREAM_SOURCE]
+    assert out["upgraded"] and out["reinstalled"] and "unchanged" in out["reason"]
+    calls.clear()
+    manage.update(check_only=True)
+    assert not calls
+
+
+def test_update_reports_a_failing_sync_only_child(env, monkeypatch):
+    monkeypatch.setattr(manage, "update_check", lambda: {"current": "2.0.0", "latest": "2.0.0",
+                                                         "update_available": False})
+    monkeypatch.setattr(manage, "install_method", lambda: "uv")
+    monkeypatch.setattr(manage.tools, "resolve", lambda c: "/fake/uv")
+
+    class Ok:
+        returncode, stderr, stdout = 0, "", ""
+
+    class Bad:
+        returncode, stderr = 1, ""
+        stdout = json.dumps({"ok": False, "result": None, "error": {
+            "code": "BAD_INPUT", "message": "A different skill already occupies the Reach instruction path"}})
+
+    monkeypatch.setattr(manage.subprocess, "run",
+                        lambda cmd, **kw: Bad() if "--sync-only" in cmd else Ok())
+    with pytest.raises(ReachError) as exc:
+        manage.update()
+    assert exc.value.code == "BAD_INPUT" and "different skill" in exc.value.message
+
+
+def test_update_reason_says_the_newer_release_is_not_installed(env, monkeypatch):
+    monkeypatch.setattr(manage, "update_check", lambda: {"current": "2.0.0", "latest": "2.1.0",
+                                                         "update_available": True})
+    monkeypatch.setattr(manage, "install_method", lambda: "uv")
+    monkeypatch.setattr(manage.tools, "resolve", lambda c: "/fake/uv")
+
+    class Done:
+        returncode, stderr = 0, ""
+        stdout = json.dumps({"ok": True, "result": {"user_actions": []}})
+
+    monkeypatch.setattr(manage.subprocess, "run", lambda cmd, **kw: Done())
+    reason = manage.update()["reason"]
+    assert "local" in reason and "synced with upstream" in reason
+
+
 def test_update_without_new_release_still_upgrades_tools(env, monkeypatch):
     monkeypatch.setattr(manage, "update_check", lambda: {"current": "2.0.0", "latest": "2.0.0",
                                                          "update_available": False})
+    monkeypatch.setattr(manage, "install_method", lambda: "editable")
     manage.add("bili")
     env["versions"]["bili-cli"] = "3.0.0"
     out = manage.update()
-    assert out["upgraded"] is False and isinstance(out["user_actions"], list)
+    assert out["upgraded"] is False and out["reinstalled"] is False and isinstance(out["user_actions"], list)
     assert state.load()["tools"]["bili-cli"]["version"] == "3.0.0"
 
 

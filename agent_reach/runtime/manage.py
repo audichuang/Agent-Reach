@@ -843,6 +843,21 @@ def sync() -> dict:
             "old_copies": old_copies}
 
 
+def _run_child(cmd: list) -> dict:
+    """Run a freshly installed `agent-reach` child; return its result or raise its error."""
+    out = subprocess.run(cmd, capture_output=True, text=True, timeout=1800)
+    try:
+        env = json.loads(out.stdout.strip().split("\n")[-1])
+    except (ValueError, IndexError):
+        env = None
+    if isinstance(env, dict) and env.get("ok") and out.returncode == 0:
+        return env.get("result") or {}
+    err = env.get("error") if isinstance(env, dict) else None
+    if isinstance(err, dict) and err.get("message"):
+        raise ReachError(str(err.get("code") or UPSTREAM_BROKEN), str(err["message"]), hint=err.get("hint"))
+    raise ReachError(UPSTREAM_BROKEN, f"`{' '.join(cmd[1:])}` failed: {(out.stderr or out.stdout).strip()[-300:]}")
+
+
 def _move_to_uv(info: dict) -> dict:
     """This copy was installed with pip/pipx (1.5 style). Install the release with uv, let the
     new copy set itself up (it removes known old copies), then remove this copy too."""
@@ -865,11 +880,7 @@ def _move_to_uv(info: dict) -> dict:
     bin_dir = subprocess.run([uv, "tool", "dir", "--bin"], capture_output=True, text=True, timeout=60).stdout.strip()
     exe = Path(bin_dir) / ("agent-reach.exe" if os.name == "nt" else "agent-reach")
     child = [str(exe), "setup"] if fresh else [str(exe), "update", "--sync-only"]
-    out = subprocess.run(child, capture_output=True, text=True, timeout=1800)
-    try:
-        result = json.loads(out.stdout.strip().split("\n")[-1]).get("result") or {}
-    except (ValueError, IndexError):
-        result = {"raw": out.stdout[-500:]}
+    result = _run_child(child)
     actions = list(result.get("user_actions") or [])
     package = Path(__file__).resolve().parents[1]
     if package.exists():  # a copy the new one does not know about (pip --user, conda, ...)
@@ -893,7 +904,12 @@ def update(check_only: bool = False) -> dict:
     method = install_method()
     if method == "other":
         return _move_to_uv(info)
-    if info["update_available"] and method != "editable":
+    if method != "editable":
+        # Downstream ships fixes on `local` without bumping the version, so an explicit update
+        # always reinstalls from DOWNSTREAM_SOURCE, even when no newer upstream release exists.
+        reason = ("a newer upstream release exists, but this reinstalled the downstream `local` branch; "
+                  "`local` must be synced with upstream first to get it" if info["update_available"]
+                  else "reinstalled the downstream branch; the version number is unchanged")
         cmd = upgrade_command(info["latest"])
         run = [tools.resolve("uv") or cmd[0], *cmd[1:]]
         try:
@@ -905,15 +921,11 @@ def update(check_only: bool = False) -> dict:
             raise ReachError(UPSTREAM_BROKEN, f"upgrade failed: {proc.stderr.strip()[-300:]}",
                              hint=f"Run manually: {' '.join(cmd)}")
         exe = shutil.which("agent-reach") or sys.argv[0]
-        out = subprocess.run([exe, "update", "--sync-only"], capture_output=True, text=True, timeout=1800)
-        try:
-            synced = json.loads(out.stdout.strip().split("\n")[-1]).get("result") or {}
-        except (ValueError, IndexError):
-            synced = {"raw": out.stdout[-500:]}
-        return {**info, "upgraded": True, "method": method, "sync": synced,
+        synced = _run_child([exe, "update", "--sync-only"])
+        return {**info, "upgraded": True, "reinstalled": True, "reason": reason, "method": method, "sync": synced,
                 "user_actions": synced.get("user_actions", [])}
     synced = sync()
-    return {**info, "upgraded": False, "method": method, "sync": synced, "user_actions": synced["user_actions"]}
+    return {**info, "upgraded": False, "reinstalled": False, "method": method, "sync": synced, "user_actions": synced["user_actions"]}
 
 
 # ── uninstall ──

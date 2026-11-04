@@ -19,7 +19,7 @@ Private downstream of github.com/Panniantong/Agent-Reach | License: MIT | Versio
 
 ## Downstream changes (keep through upstream syncs)
 - `channels/firecrawl.py` — Firecrawl MCP via mcporter, config `~/.agent-reach/firecrawl.json`
-- `manage.DOWNSTREAM_SOURCE` — `update` reinstalls `audichuang/Agent-Reach@local`, never the public release
+- `manage.DOWNSTREAM_SOURCE` — `update` reinstalls `audichuang/Agent-Reach@local`, never the public release; an explicit `update` reinstalls it even when the version is unchanged (`reinstalled`, `reason` in the result), because fixes land on `local` without a bump
 - `manage._externally_managed` — an aghub symlink at `~/.agents/skills/agent-reach` is left alone
 - `backends/opencli._opencli_error` — OpenCLI "HTML instead of JSON" maps to UPSTREAM_BROKEN, not NEED_LOGIN, so added channels reach the public-web fallback
 - `channels/google_news.py`, `channels/hackernews.py` — no-browser news channels over OpenCLI (`google news`, `hackernews`); default level, tools `opencli`+`node`, no login
