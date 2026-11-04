@@ -27,7 +27,6 @@ _TARGET_RE = re.compile(
     r"^(?:https?://(?:www\.)?github\.com/)?([\w.-]+)/([\w.-]+?)(?:\.git)?"
     r"(?:/(?:issues|pull)/(\d+))?/?(?:[?#].*)?$"
 )
-_PATH_RE = re.compile(r"^/[\w.-]+/[\w.-]+(?:/(?:issues|pull)/\d+)?/?$")
 _README_MAX_CHARS = 50_000
 
 _GH_READ_ONLY_ENV = {
@@ -134,7 +133,7 @@ class GitHubChannel(Channel):
         from agent_reach.utils.url import host_matches
 
         # Only claim URLs _parse_target understands; blob/tree/profile links fall through to web.
-        return host_matches(url, "github.com") and bool(_PATH_RE.match(urlsplit(str(url).strip()).path))
+        return host_matches(url, "github.com") and bool(_TARGET_RE.match(str(url).strip()))
 
     # ── unified entry backends ──
 

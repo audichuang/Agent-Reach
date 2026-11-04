@@ -22,6 +22,9 @@ def _x(args, timeout: float) -> list:
     return items
 
 
+_STATUS_ID_RE = re.compile(r"^/(?:i/web/|[^/]+/)status/(\d+)")
+
+
 class TwitterChannel(Channel):
     name = "twitter"
     description = "Twitter/X 推文"
@@ -84,7 +87,7 @@ class TwitterChannel(Channel):
     def is_status_url(url: str) -> bool:
         """True for x.com / twitter.com /<user>/status/<id> links."""
         return host_matches(url, "x.com", "twitter.com") and bool(
-            re.match(r"^/(?:i/web/|[^/]+/)status/\d+", urlsplit(url).path)
+            _STATUS_ID_RE.match(urlsplit(url).path)
         )
 
     # ── unified entry backends ──
@@ -100,5 +103,7 @@ class TwitterChannel(Channel):
         return _x(["tweets", username.lstrip("@"), "--limit", str(limit)], timeout)[:limit]
 
     def _opencli_thread(self, *, target: str, limit: int, timeout: float) -> list:
-        tweet_id = str(target).rstrip("/").split("/")[-1].split("?")[0]
+        target = str(target).strip()
+        m = _STATUS_ID_RE.match(urlsplit(target).path) if "/" in target else None
+        tweet_id = m.group(1) if m else target
         return _x(["thread", tweet_id, "--limit", str(limit)], timeout)[:limit]
