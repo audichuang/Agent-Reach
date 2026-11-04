@@ -893,7 +893,11 @@ def update(check_only: bool = False) -> dict:
     method = install_method()
     if method == "other":
         return _move_to_uv(info)
-    if info["update_available"] and method != "editable":
+    if method != "editable":
+        # Downstream ships fixes on `local` without bumping the version, so an explicit update
+        # always reinstalls from DOWNSTREAM_SOURCE, even when no newer upstream release exists.
+        reason = ("a newer release exists" if info["update_available"]
+                  else "reinstalled the downstream branch; the version number is unchanged")
         cmd = upgrade_command(info["latest"])
         run = [tools.resolve("uv") or cmd[0], *cmd[1:]]
         try:
@@ -910,10 +914,10 @@ def update(check_only: bool = False) -> dict:
             synced = json.loads(out.stdout.strip().split("\n")[-1]).get("result") or {}
         except (ValueError, IndexError):
             synced = {"raw": out.stdout[-500:]}
-        return {**info, "upgraded": True, "method": method, "sync": synced,
+        return {**info, "upgraded": True, "reinstalled": True, "reason": reason, "method": method, "sync": synced,
                 "user_actions": synced.get("user_actions", [])}
     synced = sync()
-    return {**info, "upgraded": False, "method": method, "sync": synced, "user_actions": synced["user_actions"]}
+    return {**info, "upgraded": False, "reinstalled": False, "method": method, "sync": synced, "user_actions": synced["user_actions"]}
 
 
 # ── uninstall ──
