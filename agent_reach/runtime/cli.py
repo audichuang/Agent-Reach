@@ -394,6 +394,7 @@ def _login_channel(cmd: str, args: Sequence[str]):
     if cmd == "login":
         parser.add_argument("--import-existing", action="store_true")
         parser.add_argument("--sync", action="store_true")
+        parser.add_argument("--self-heal", action="store_true")
     ns = parser.parse_args(list(args))
     ch = _channel(ns.channel)
     if ch is None:
@@ -403,6 +404,8 @@ def _login_channel(cmd: str, args: Sequence[str]):
         raise _ArgError(f"{ch.name} has no login state managed by Agent Reach.{hint}")
     if cmd == "login" and not (ch.session or ch.login_url):
         raise _ArgError(f"{ch.name} has no login managed by Agent Reach")
+    if cmd == "login" and ns.self_heal and not ch.login_url:
+        raise _ArgError(f"--self-heal only applies to browser-login channels; {ch.name} is not one")
     return ch, ns
 
 
@@ -411,6 +414,9 @@ def _cmd_login(args: Sequence[str]) -> int:
         ch, ns = _login_channel("login", args)
     except _ArgError as exc:
         return _bad_input(None, "login", str(exc))
+    if ns.self_heal:
+        from . import session_reuse
+        return _mgmt("reuse login", session_reuse.prepare, ch.name, self_heal=True)
     if ns.import_existing and ch.login_url:
         from . import session_reuse
         return _mgmt("reuse login", session_reuse.prepare, ch.name, force=True)
