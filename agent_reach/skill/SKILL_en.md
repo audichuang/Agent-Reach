@@ -50,7 +50,7 @@ Users have complained "analysing without checking the news is wrong" and "no big
 
 When the user wants depth or several angles, split by topic across subagents in parallel:
 
-1. Live-test the channels you will hand out first: `agent-reach check <ch1> <ch2> --search --text` and read each PASS/FAIL line (exit code 1 if any fails). `doctor` reads local state only and cannot see an expired login.
+1. Live-test the channels you will hand out first: `agent-reach check <ch1> <ch2> --text` (no `--search`: channels without a search action, such as v2ex and xiaoyuzhou, show 0/0 and look unusable) and read each PASS/FAIL line (exit code 1 if any fails). Check that the inline `[backend]` is the route you will hand out; `[public-web]` on a channel not added only proves anonymous web works, not the in-site actions. `doctor` reads local state only and cannot see an expired login.
 2. Hand out only PASS channels, with the exact `agent-reach ...` commands in the task.
 3. Tell subagents: do not run doctor or read this skill's references; trim big JSON with `jq` or python to `title/url/published_at/text` instead of pasting it whole; report in the format of step 4 above.
 4. Parallel limits: 2 per platform, 4 in total; Reach queues the rest.
@@ -71,8 +71,8 @@ When WebFetch or `read` hits 403, a timeout, a connection reset, a Cloudflare/Ve
 | error.code | What to do |
 |---|---|
 | `NEED_SETUP` | Missing dependency or key. Run `agent-reach add <channel>` as hinted; for a key, the user provides it, then `agent-reach configure <key>` |
-| `NEED_LOGIN` | If `message` mentions 403 or HTML instead of JSON, handle it as the `UPSTREAM_BROKEN` row. For browser-login channels (`login.via: browser` in `channels`; not Bilibili), first `agent-reach login <channel> --import-existing` (copies the login from the user's signed-in Chrome, no window), then `agent-reach check <channel> --search --text`. Only if that returns `NEED_SETUP` or still fails, ask the user to run `agent-reach login <channel>` themselves; never log in for them or ask for a password |
-| `UPSTREAM_BROKEN` | The platform is having trouble; `message` is what was reported. A 403 or "HTML instead of JSON" is usually a WAF or rate limit, not a logout: try `--backend public-web`; if that fails too, run another action of the channel (e.g. `reddit subreddit <relevant sub>`, `reddit read`), do not just suggest it. Tell the user by platform name, without naming tools; run `agent-reach update` once, after they agree, only if the message points to an outdated tool; never retry in a loop |
+| `NEED_LOGIN` | If `message` mentions 403 or HTML instead of JSON, handle it as the `UPSTREAM_BROKEN` row. For browser-login channels (`login.via: browser` in `channels`; not Bilibili), and the user has never logged out of or manually logged in to that channel, first `agent-reach login <channel> --import-existing` (copies the login from the user's signed-in Chrome, no window), then re-run the action that failed (not `check --search`, which does not test in-site actions). If the user logged out or logged in manually, or you are unsure, ask the user and confirm the source account first; do not import automatically. Only if that returns `NEED_SETUP` or still fails, ask the user to run `agent-reach login <channel>` themselves; never log in for them or ask for a password |
+| `UPSTREAM_BROKEN` | The platform is having trouble; `message` is what was reported. A 403 or "HTML instead of JSON" is usually a WAF or rate limit, not a logout: try `--backend public-web` only if `channels` shows a non-empty public_web for that action and `meta.attempts` has not tried public-web yet (google-news, hackernews and others do not support it; added channels already tried it once); otherwise run another action of the channel (e.g. `reddit subreddit <relevant sub>`, `reddit read`), do not just suggest it. Tell the user by platform name, without naming tools; run `agent-reach update` once, after they agree, only if the message points to an outdated tool; never retry in a loop |
 | `TIMEOUT` | Check the failed stage and channel status; do not retry or reopen windows in a loop |
 | `RATE_LIMITED` | From the site tool: the platform rate-limited and Reach pauses the whole channel for an hour; stop using it, do not switch backends. From `--backend public-web`: the shared web search (Exa) is limited, so `web search` and `read` of ordinary pages are paused too, but the platform is not; run another action of the channel as in the row above |
 | `PLATFORM_BLOCKED` | The platform wants verification (captcha/risk check). Stop; the user resolves it on the official page. Do not switch accounts or backends |
@@ -111,7 +111,7 @@ After `agent-reach setup`, show `result.installation_report.markdown` to the use
 |---|---|
 | Add a platform | `agent-reach add <channel>`; dependencies install automatically. Tell the user only what they must do (log in or provide a key) |
 | Remove a platform | `agent-reach remove <channel>` |
-| Log in / login expired | For browser-login channels, first `agent-reach login <channel> --import-existing`; if that fails, `agent-reach login <channel>` and the user logs in themselves in the window that opens |
+| Log in / login expired | For browser-login channels the user has not logged out of or manually logged in to, first `agent-reach login <channel> --import-existing`; otherwise ask the user first. If that fails, `agent-reach login <channel>` and the user logs in themselves in the window that opens |
 | Log out | `agent-reach logout <channel>` |
 | Status / what works | `agent-reach doctor --text` (local state only); for a live test `agent-reach check <channel...> --text` |
 | Upgrade / update | `agent-reach update` |

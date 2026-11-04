@@ -50,7 +50,7 @@ agent-reach read <链接>                   # 按链接自动选渠道
 
 用户要深度或多方面调研时，按话题拆给几个子代理并行：
 
-1. 主代理先实测要派出去的渠道：`agent-reach check <渠道1> <渠道2> --search --text`，看每行 PASS/FAIL（有 FAIL 时退出码为 1）。`doctor` 只读本地状态，看不出登录已过期。
+1. 主代理先实测要派出去的渠道：`agent-reach check <渠道1> <渠道2> --text`（不加 `--search`：没有 search 动作的渠道如 v2ex、小宇宙加了会是 0/0 而判成不可用），看每行 PASS/FAIL（有 FAIL 时退出码为 1）。PASS 要看行内 `[backend]` 是不是要派的那条路线；没 add 的渠道标 `[public-web]` 只证明公开网页能用，不证明站内动作能用。`doctor` 只读本地状态，看不出登录已过期。
 2. 只派 PASS 的渠道，把要跑的 `agent-reach …` 命令写进任务。
 3. 告诉子代理：不跑 doctor、不读本 skill 的 references；大 JSON 先用 `jq` 或 python 只取 `title/url/published_at/text`，不整段塞进上下文；回报格式照上面第 4 步。
 4. 并行上限：同平台 2 条、合计 4 条，多出来的 Reach 自动排队。
@@ -71,8 +71,8 @@ WebFetch 或 `read` 遇到 403、超时、连线重置、Cloudflare/Vercel 验�
 | error.code | 怎么办 |
 |---|---|
 | `NEED_SETUP` | 缺依赖或密钥。按提示 `agent-reach add <渠道>`；要密钥时请用户本人提供，再 `agent-reach configure <key>` |
-| `NEED_LOGIN` | `message` 提到 403 或 HTML instead of JSON 时按 `UPSTREAM_BROKEN` 那行处理。浏览器登录的渠道（`channels` 里 `login.via: browser`；B 站不是）先 `agent-reach login <渠道> --import-existing`（从用户已登录的 Chrome 复制登录，不开窗口），再 `agent-reach check <渠道> --search --text`。返回 `NEED_SETUP` 或仍失败，才请用户本人 `agent-reach login <渠道>`；你绝不代登、不要密码 |
-| `UPSTREAM_BROKEN` | 平台暂时有问题，`message` 是原话。403、"HTML instead of JSON" 多半是风控或限流，不代表登出：换 `--backend public-web`；它也失败就直接跑同渠道其他动作（如 `reddit subreddit <相关板块>`、`reddit read`），不是只建议。用平台名告诉用户，不说工具名；原话说明工具过时，才在用户同意后跑一次 `agent-reach update`；不循环重试 |
+| `NEED_LOGIN` | `message` 提到 403 或 HTML instead of JSON 时按 `UPSTREAM_BROKEN` 那行处理。浏览器登录的渠道（`channels` 里 `login.via: browser`；B 站不是）且用户没退出过、也没手动登录过该渠道，才先 `agent-reach login <渠道> --import-existing`（从用户已登录的 Chrome 复制登录，不开窗口），再重跑原来失败的那个动作验证（不用 `check --search`：它不测站内动作）。用户退出或手动登录过该渠道、或不确定时，先问用户并确认来源账号，不自动导入。返回 `NEED_SETUP` 或仍失败，才请用户本人 `agent-reach login <渠道>`；你绝不代登、不要密码 |
+| `UPSTREAM_BROKEN` | 平台暂时有问题，`message` 是原话。403、"HTML instead of JSON" 多半是风控或限流，不代表登出：只有 `channels` 里该动作的 public_web 非空、且 `meta.attempts` 还没试过 public-web 时才换 `--backend public-web`（google-news、hackernews 等不支持，已 add 的渠道会自动试过一次）；否则直接跑同渠道其他动作（如 `reddit subreddit <相关板块>`、`reddit read`），不是只建议。用平台名告诉用户，不说工具名；原话说明工具过时，才在用户同意后跑一次 `agent-reach update`；不循环重试 |
 | `TIMEOUT` | 看失败阶段和渠道状态；不反复重试、不反复开窗 |
 | `RATE_LIMITED` | 站内工具返回的：平台限流，Reach 暂停整个渠道一小时，停用该渠道、不换后端。`--backend public-web` 返回的：限流的是它共用的网页搜索（Exa；`web search`、普通网页的 `read` 同时停用），平台本身没被暂停，照上一行跑同渠道其他动作 |
 | `PLATFORM_BLOCKED` | 平台要求验证（验证码/风控）。停下，请用户在官方页面处理；不换账号、不换后端 |
@@ -111,7 +111,7 @@ WebFetch 或 `read` 遇到 403、超时、连线重置、Cloudflare/Vercel 验�
 |---|---|
 | 加上某个平台 | `agent-reach add <渠道>`，依赖自动装好；只告诉用户他必须做的事（登录或提供密钥） |
 | 去掉某个平台 | `agent-reach remove <渠道>` |
-| 登录 / 登录过期 | 浏览器登录的渠道先 `agent-reach login <渠道> --import-existing`；不行再 `agent-reach login <渠道>`，由用户本人在打开的窗口里登录 |
+| 登录 / 登录过期 | 浏览器登录的渠道，用户没退出过、也没手动登录过时先 `agent-reach login <渠道> --import-existing`；否则先问用户。不行再 `agent-reach login <渠道>`，由用户本人在打开的窗口里登录 |
 | 退出登录 | `agent-reach logout <渠道>` |
 | 看看状态 / 哪些能用 | `agent-reach doctor --text`（只看本地状态）；实测跑 `agent-reach check <渠道…> --text` |
 | 升级 / 更新 | `agent-reach update` |
