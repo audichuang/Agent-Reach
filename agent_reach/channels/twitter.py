@@ -1,6 +1,9 @@
 # -*- coding: utf-8 -*-
 """Twitter/X — OpenCLI in the Agent Reach browser (experimental)."""
 
+import re
+from urllib.parse import urlsplit
+
 from agent_reach.backends.opencli import opencli_call, opencli_items
 from agent_reach.runtime.result import UPSTREAM_BROKEN, ReachError
 from agent_reach.utils.url import host_matches
@@ -17,6 +20,9 @@ def _x(args, timeout: float) -> list:
     if not items:
         raise ReachError(UPSTREAM_BROKEN, "OpenCLI finished but returned no items")
     return items
+
+
+_STATUS_ID_RE = re.compile(r"^/(?:i/web/|[^/]+/)status/(\d+)")
 
 
 class TwitterChannel(Channel):
@@ -66,13 +72,23 @@ class TwitterChannel(Channel):
         Action(
             "thread",
             "A tweet with its replies",
-            (Param("target", "tweet id or link"),),
+            (
+                Param("target", "tweet id or link"),
+                Param("limit", "max tweets in the thread", required=False, type=int, default=50),
+            ),
             (("opencli", "_opencli_thread"),),
         ),
     )
 
     def can_handle(self, url: str) -> bool:
         return host_matches(url, "x.com", "twitter.com")
+
+    @staticmethod
+    def is_status_url(url: str) -> bool:
+        """True for x.com / twitter.com /<user>/status/<id> links."""
+        return host_matches(url, "x.com", "twitter.com") and bool(
+            _STATUS_ID_RE.match(urlsplit(url).path)
+        )
 
     # ── unified entry backends ──
 
@@ -86,6 +102,8 @@ class TwitterChannel(Channel):
     def _opencli_tweets(self, *, username: str, limit: int, timeout: float) -> list:
         return _x(["tweets", username.lstrip("@"), "--limit", str(limit)], timeout)[:limit]
 
-    def _opencli_thread(self, *, target: str, timeout: float) -> list:
-        tweet_id = str(target).rstrip("/").split("/")[-1].split("?")[0]
-        return _x(["thread", tweet_id], timeout)
+    def _opencli_thread(self, *, target: str, limit: int, timeout: float) -> list:
+        target = str(target).strip()
+        m = _STATUS_ID_RE.match(urlsplit(target).path) if "/" in target else None
+        tweet_id = m.group(1) if m else target
+        return _x(["thread", tweet_id, "--limit", str(limit)], timeout)[:limit]

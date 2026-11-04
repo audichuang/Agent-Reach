@@ -654,3 +654,40 @@ def test_open_login_window_without_extension_is_busy_not_closed(fake_browser):
         browser.setup()
     assert info.value.code == "BUSY"
     assert fake_browser["running"] and fake_browser["launches"] == 1
+
+
+# ── read routing ──
+
+
+def test_github_claims_only_urls_it_can_parse():
+    from agent_reach.channels.github import GitHubChannel
+
+    gh = GitHubChannel()
+    assert gh.can_handle("https://github.com/cli/cli")
+    assert gh.can_handle("https://github.com/cli/cli/issues/42")
+    assert not gh.can_handle("https://github.com/Panniantong/Agent-Reach/blob/main/README.md")
+    assert not gh.can_handle("https://github.com/cli/cli/tree/trunk/docs")
+
+
+def test_x_status_url_reads_via_twitter_thread(monkeypatch):
+    from agent_reach.channels.twitter import TwitterChannel
+
+    tw = TwitterChannel()
+    calls = []
+    monkeypatch.setattr(unified, "get_all_channels", lambda: [tw])
+    monkeypatch.setattr(unified, "run_action", lambda ch, name, params, **kw: calls.append((ch.name, name, params)) or {"ok": True})
+    monkeypatch.setattr(unified, "_emit", lambda env: 0)
+    assert unified.main(["read", "https://x.com/jack/status/20?s=46"]) == 0
+    assert calls == [("twitter", "thread", {"target": "https://x.com/jack/status/20?s=46"})]
+    assert tw.is_status_url("https://twitter.com/i/web/status/20")
+    assert not tw.is_status_url("https://x.com/jack")
+
+
+def test_twitter_thread_passes_limit_to_opencli(monkeypatch):
+    from agent_reach.channels import twitter
+
+    seen = []
+    monkeypatch.setattr(twitter, "_x", lambda args, timeout: seen.append(list(args)) or [{"t": i} for i in range(60)])
+    ch = twitter.TwitterChannel()
+    assert len(ch._opencli_thread(target="https://x.com/a/status/9", limit=40, timeout=5)) == 40
+    assert seen == [["thread", "9", "--limit", "40"]]

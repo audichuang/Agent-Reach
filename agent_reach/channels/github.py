@@ -132,7 +132,8 @@ class GitHubChannel(Channel):
     def can_handle(self, url: str) -> bool:
         from agent_reach.utils.url import host_matches
 
-        return host_matches(url, "github.com")
+        # Only claim URLs _parse_target understands; blob/tree/profile links fall through to web.
+        return host_matches(url, "github.com") and bool(_TARGET_RE.match(str(url).strip()))
 
     # ── unified entry backends ──
 

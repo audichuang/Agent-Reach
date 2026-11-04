@@ -57,11 +57,6 @@ def test_credential_channels_reject_lookalikes_and_userinfo(channel, malicious_u
     ("channel", "subdomain_url", "port_url"),
     [
         (
-            GitHubChannel(),
-            "https://api.github.com/repos/openai/openai-python",
-            "https://github.com:443/openai/openai-python",
-        ),
-        (
             YouTubeChannel(),
             "https://m.youtube.com/watch?v=abc",
             "https://youtu.be:443/abc",
@@ -137,3 +132,30 @@ def test_fixed_domain_channels_reject_suffix_lookalikes_and_userinfo(
 )
 def test_host_matches_rejects_invalid_ports(malicious_url):
     assert not host_matches(malicious_url, "x.com")
+
+
+def test_github_only_claims_urls_the_parser_understands():
+    gh = GitHubChannel()
+    assert gh.can_handle("https://www.github.com/openai/openai-python")
+    assert not gh.can_handle("https://gist.github.com/octocat/6cad326836d38bd3a7ae")
+    assert not gh.can_handle("https://github.com:443/openai/openai-python")
+
+
+@pytest.mark.parametrize(
+    ("url", "tid"),
+    [
+        ("https://x.com/jack/status/20/photo/1", "20"),
+        ("https://x.com/jack/status/20/video/1", "20"),
+        ("https://x.com/jack/status/20#m", "20"),
+        ("https://x.com/jack/status/20/?s=46", "20"),
+        ("https://x.com/jack/status/20?s=1", "20"),
+        ("20", "20"),
+    ],
+)
+def test_twitter_thread_extracts_status_id(url, tid, monkeypatch):
+    from agent_reach.channels import twitter
+
+    seen = []
+    monkeypatch.setattr(twitter, "_x", lambda args, timeout: seen.append(args) or [])
+    TwitterChannel()._opencli_thread(target=url, limit=5, timeout=1)
+    assert seen[0][1] == tid
