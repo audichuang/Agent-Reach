@@ -1,0 +1,47 @@
+{
+ "date": "2026-11-05",
+ "model": "Claude CLI sonnet (executors, graders, trigger runs)",
+ "baseline": "skill as shipped in local 2ab539b (1.6.1 sync, before this rewrite)",
+ "candidate": "feat/skill-research-depth (research/news procedure, google-news/hackernews, Firecrawl triggers, login self-heal)",
+ "evidence": "30 days of Claude/Codex transcripts on ubuntu, macmini and MacBook Pro reviewed by 10 subagents; eval prompts adapted from real failures",
+ "trigger": {
+  "method": "skillgenie run_eval, 3 runs/query, 20 queries (12 positive, 8 negative)",
+  "neighbors": [
+   "redbook",
+   "last30days",
+   "research",
+   "yt-dlp-capture"
+  ],
+  "old": "12/20",
+  "iteration1": "16/20",
+  "final": "18/20",
+  "false_triggers": 0,
+  "still_missed": [
+   "最近 Hacker News 上大家怎麼討論 Claude Code 的新版本",
+   "這兩個 repo 誰比較好用？看看 reddit 跟 X 上的人怎麼評價"
+  ],
+  "note": "the two misses are likely taken by last30days (its description covers recent Reddit/X/HN opinion); run_eval does not record the first tool, so this is unverified"
+ },
+ "body": {
+  "method": "10 cases, live read-only runs (state-changing commands logged as WOULD RUN), graded per expectation",
+  "iteration1": {
+   "new": "31/34",
+   "old": "23/34"
+  },
+  "iteration2": {
+   "new": "30/34",
+   "old": "26/34",
+   "condition": "Exa (web channel) rate-limited for both arms"
+  },
+  "final_recheck": {
+   "cases": [
+    3,
+    4,
+    5
+   ],
+   "new": "9/11",
+   "regression": "case 4 (X NEED_LOGIN self-heal) 4/4 -> 2/4 after review made --import-existing conditional on no logout/manual record; agents cannot see that record, so they ask first. Follow-up: CLI flag that refuses only when such a record exists."
+  }
+ },
+ "eval_set": "tests/skill_evals/research-depth/ (evals.json, trigger-evals.json)"
+}

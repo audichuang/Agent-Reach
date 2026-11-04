@@ -1,6 +1,12 @@
 # Firecrawl
 
-用户点名 Firecrawl、要站内 URL 列表或多页正文，或 web read 只拿到验证页/空壳时读这份。
+WebFetch 或 `read` 读不到（403、超时、验证页、JS 空壳、PDF）、同站要读多页、要站内 URL 列表，或用户点名 Firecrawl 时读这份。
+
+## 两条路径
+
+- 会话里有 `mcp__firecrawl__*` 工具（如 `firecrawl_scrape`、`firecrawl_map`）就直接用；免密钥的托管版可能只有 scrape/search，缺的动作走下面的 CLI。
+- 没有 MCP 工具时用 `agent-reach firecrawl`（需先 `add firecrawl` 并有下方配置）。两条路后端不同，一条失败可以试另一条。
+- 找新闻不用 Firecrawl：它的 search 加新闻/时间过滤实测无效，新闻走 `google-news`、`hackernews` 和自带搜索。但把已知标题（如 Google News 的标题）换成原文 URL 可以用 `firecrawl_search`：整句标题、不加引号（加引号实测返回空）。CLI 没有 search 动作。
 
 ## 动作
 

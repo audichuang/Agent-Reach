@@ -1,0 +1,22 @@
+[
+  {"query": "大家有反應 tailscale 連線問題嗎 有人有遇到嗎", "should_trigger": true},
+  {"query": "幫我查一下 NVDA 這週為什麼跌，要有新聞來源", "should_trigger": true},
+  {"query": "最近 Hacker News 上大家怎麼討論 Claude Code 的新版本", "should_trigger": true},
+  {"query": "這兩個 repo 誰比較好用？看看 reddit 跟 X 上的人怎麼評價", "should_trigger": true},
+  {"query": "幫我看這則推文跟底下的回覆 https://x.com/AnthropicAI/status/1925591505332576377", "should_trigger": true},
+  {"query": "我希望你多幫我看看有沒有更多財經媒體的報導，多查一點去統整台積電法說會", "should_trigger": true},
+  {"query": "今天科技圈有什麼重要新聞？", "should_trigger": true},
+  {"query": "雪球上大家怎麼看寧德時代這季財報", "should_trigger": true},
+  {"query": "把 https://docs.firecrawl.dev 底下所有文件頁的網址列出來", "should_trigger": true},
+  {"query": "這個網頁 WebFetch 回 403 讀不到 https://www.reuters.com/technology/ 幫我讀內容", "should_trigger": true},
+  {"query": "B站上有沒有人評測 Sony WH-1000XM6，大家說音質怎樣", "should_trigger": true},
+  {"query": "agent-reach 說 reddit 要登入 NEED_LOGIN，可是我明明登過了", "should_trigger": true},
+  {"query": "小红书上搜一下台北好喝的咖啡店", "should_trigger": false},
+  {"query": "抓這部 YouTube 影片的字幕給我 https://www.youtube.com/watch?v=dQw4w9WgXcQ", "should_trigger": false},
+  {"query": "幫我寫一個 Python 函式把 list 去重但保留順序", "should_trigger": false},
+  {"query": "解釋一下 TCP 三次握手", "should_trigger": false},
+  {"query": "幫我在 X 上發一則推文宣傳我的新專案", "should_trigger": false},
+  {"query": "Python asyncio.gather 的 return_exceptions 參數官方文件怎麼說", "should_trigger": false},
+  {"query": "幫我做一份研究報告：比較三種向量資料庫，結果寫成 markdown 存進 repo 的 docs/", "should_trigger": false},
+  {"query": "這個 repo 的 pytest 為什麼失敗？幫我修", "should_trigger": false}
+]
