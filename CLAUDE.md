@@ -21,6 +21,7 @@ Private downstream of github.com/Panniantong/Agent-Reach | License: MIT | Versio
 - `channels/firecrawl.py` — Firecrawl MCP via mcporter, config `~/.agent-reach/firecrawl.json`
 - `manage.DOWNSTREAM_SOURCE` — `update` reinstalls `audichuang/Agent-Reach@local`, never the public release
 - `manage._externally_managed` — an aghub symlink at `~/.agents/skills/agent-reach` is left alone
+- `backends/opencli._opencli_error` — OpenCLI "HTML instead of JSON" maps to UPSTREAM_BROKEN, not NEED_LOGIN, so added channels reach the public-web fallback
 - Skill: narrowed description, dedicated skills (redbook) first, `references/downstream.md` and `references/firecrawl.md`
 
 ## Rules

@@ -248,3 +248,14 @@ def test_empty_search_succeeds_but_live_acceptance_remains_unverified(monkeypatc
     assert result["results"][0]["verified"] is False
     assert result["results"][0]["error"]["code"] == "EMPTY"
     assert manage.channel_status(ch, state.load())["status"] == "broken"
+
+
+def test_html_instead_of_json_with_auth_code_stays_need_login():
+    text = json.dumps({"error": {"code": "AUTH_REQUIRED", "message": "Instagram search returned HTML instead of JSON (HTTP 200)"}})
+    assert _opencli_error(text, "login via reach").code == "NEED_LOGIN"
+
+
+def test_html_instead_of_json_hint_drops_upstream_help():
+    text = json.dumps({"error": {"code": "LOGIN_WALL", "message": "Server returned HTML instead of JSON", "help": "Try re-logging in via your browser"}})
+    err = _opencli_error(text, "login via reach")
+    assert err.code == "UPSTREAM_BROKEN" and "browser" not in err.hint and "login via reach" in err.hint
