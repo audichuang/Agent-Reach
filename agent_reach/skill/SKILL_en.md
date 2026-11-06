@@ -27,7 +27,7 @@ agent-reach <channel> <action> [args]     # e.g. agent-reach google-news search 
 agent-reach read <url>                    # picks the channel from the URL
 ```
 
-Call only through `agent-reach`, never `opencli`, `twitter`, `rdt` or `mcporter` directly (they live in a private folder and may not be on PATH). Limit time with `--timeout SECONDS`, not `timeout`/`gtimeout` (macOS lacks them). Reach queues and paces same-platform searches itself; do not sleep between calls.
+Call only through `agent-reach`, never `opencli`, `twitter`, `rdt` or `mcporter` directly (they live in a private folder and may not be on PATH). Limit time with `--timeout SECONDS`, not `timeout`/`gtimeout` (macOS lacks them). Reach queues and paces same-platform searches itself; do not sleep between calls. An action not listed in `channels` (e.g. X bookmarks) is unsupported: say so instead of running upstream tools.
 
 ## Research and news
 
@@ -42,6 +42,7 @@ Users have complained "analysing without checking the news is wrong" and "no big
 |---|---|
 | Finance, single stocks | `google-news search`; `xueqiu quote`; Xueqiu discussion via `xueqiu hot_posts` or built-in search `site:xueqiu.com`; `twitter search` for English-language markets |
 | Tech, developers | `hackernews search`, `reddit search`, `twitter search`, `v2ex hot` / `v2ex node` |
+| "How do others do X", implementation references | `github search` for repos, `gh search code` for code; read the README or key code; then `hackernews search`, `reddit search` for people who used it. Deliver concrete approaches with links, not just repo names |
 | Chinese communities | `v2ex`, `bilibili search`, Xueqiu; XiaoHongShu goes to redbook |
 | English product reputation | `reddit search` / `reddit subreddit`, `twitter search`, `hackernews search`, `youtube search` |
 | "Anyone else?", known issues | the official issue tracker first (`gh search issues`, `github read <issue link>`), then reddit / hackernews / v2ex |
@@ -82,6 +83,8 @@ Browser channels share one dedicated browser (CloakBrowser preferred, else insta
 - X post links (`x.com/<user>/status/<id>`): `agent-reach read` or `twitter thread <link> --limit N` gives the post and replies.
 - `xueqiu search` only finds stocks by name or code, not topics; `hot_posts` and `hot_stocks` need a browser session, `quote` does not. `github search` searches repositories only; for code use `gh search code`, for issues `gh search issues`. GitHub file or directory links go from `read` to web.
 - Hacker News results have no date or text: the discussion and date are at `https://news.ycombinator.com/item?id=<raw.id>`, read with built-in tools or `web read`; `--sort date` is mostly low-score noise, keep the default relevance.
+- `reddit search` cannot filter by time: check each `published_at`; if the hits are old, say "the results are posts from before <month>", not "nobody discussed it recently".
+- `youtube search` returns only titles and channels; to know what a video says, read its subtitles with the yt-dlp-capture skill.
 - Xiaohongshu read returns text descriptions only; never claim to understand the images or video.
 - When a Boss Zhipin search result has `salary_encoded=true`, never guess the salary digits; read the job link for the readable salary in the detail.
 - What each platform offers publicly and what Reach adds is in [Capability scope](references/capabilities.md): read it when the user asks "what can it get / is it complete".

@@ -27,7 +27,7 @@ agent-reach <渠道> <动作> [参数]          # 例：agent-reach google-news 
 agent-reach read <链接>                   # 按链接自动选渠道
 ```
 
-只通过 `agent-reach` 调用，不直接跑 `opencli`、`twitter`、`rdt`、`mcporter`（装在私有目录，不一定在 PATH）。限时用 `--timeout 秒数`，不套 `timeout`/`gtimeout`（macOS 没有）。Reach 自己排队、控制同平台的搜索间隔，不要自己 sleep。
+只通过 `agent-reach` 调用，不直接跑 `opencli`、`twitter`、`rdt`、`mcporter`（装在私有目录，不一定在 PATH）。限时用 `--timeout 秒数`，不套 `timeout`/`gtimeout`（macOS 没有）。Reach 自己排队、控制同平台的搜索间隔，不要自己 sleep。`channels` 里没有的动作（如 X 书签）直接告诉用户不支持，不绕去跑上游工具。
 
 ## 调研与新闻
 
@@ -42,6 +42,7 @@ agent-reach read <链接>                   # 按链接自动选渠道
 |---|---|
 | 财经、个股 | `google-news search`；`xueqiu quote`；雪球讨论用 `xueqiu hot_posts` 或自带搜索 `site:xueqiu.com`；`twitter search` 看英文市场 |
 | 科技、开发者 | `hackernews search`、`reddit search`、`twitter search`、`v2ex hot` / `v2ex node` |
+| "看看别人怎么做 X"、实现参考 | `github search` 找仓库、`gh search code` 找代码，读 README 或关键代码；再用 `hackernews search`、`reddit search` 看实际用过的人怎么说。交付具体做法与链接，不只列仓库名 |
 | 中文社区 | `v2ex`、`bilibili search`、雪球；小红书交给 redbook |
 | 英文产品口碑 | `reddit search` / `reddit subreddit`、`twitter search`、`hackernews search`、`youtube search` |
 | "有人遇到吗"、已知问题 | 先查官方 issue tracker（`gh search issues`、`github read <issue 链接>`），再查 reddit / hackernews / v2ex |
@@ -82,6 +83,8 @@ WebFetch 或 `read` 遇到 403、超时、连线重置、验证页、JS 空壳�
 - X 帖子链接（`x.com/<用户>/status/<id>`）用 `agent-reach read` 或 `twitter thread <链接> --limit N` 读正文与回复。
 - `xueqiu search` 只按名称或代码找股票，不搜话题；`hot_posts`、`hot_stocks` 需要浏览器会话，`quote` 不需要。`github search` 只搜仓库；搜代码用 `gh search code`，搜 issue 用 `gh search issues`。GitHub 文件或目录链接由 `read` 交给 web。
 - Hacker News 结果没有日期和正文：讨论与日期在 `https://news.ycombinator.com/item?id=<raw.id>`，用自带工具或 `web read` 读；`--sort date` 多是低分噪音，默认相关度即可。
+- `reddit search` 不能按时间筛：先看每条的 `published_at`，结果都是旧帖时照实说"搜到的是 X 月以前的帖子"，不能当成"最近没人讨论"。
+- `youtube search` 只给标题与频道；要知道视频讲了什么，用 yt-dlp-capture 技能读字幕再总结。
 - 小红书 read 只返回文字描述，不要声称看懂了图片或视频。
 - Boss 直聘搜索结果 `salary_encoded=true` 时绝不猜薪资数字；read 职位链接拿详情里的可读薪资。
 - 各平台公开能做什么、Reach 补什么，见 [能力边界](references/capabilities.md)：用户问"能查什么/查得全吗"时读它。
