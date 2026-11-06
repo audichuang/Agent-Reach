@@ -392,9 +392,12 @@ def _login_channel(cmd: str, args: Sequence[str]):
     parser = _Parser(prog=cmd, add_help=False)
     parser.add_argument("channel")
     if cmd == "login":
-        parser.add_argument("--import-existing", action="store_true")
-        parser.add_argument("--sync", action="store_true")
-        parser.add_argument("--self-heal", action="store_true")
+        # Each flag picks a different login path and _cmd_login runs only the first match,
+        # so any combination would silently drop the others.
+        mode = parser.add_mutually_exclusive_group()
+        mode.add_argument("--import-existing", action="store_true")
+        mode.add_argument("--sync", action="store_true")
+        mode.add_argument("--self-heal", action="store_true")
     ns = parser.parse_args(list(args))
     ch = _channel(ns.channel)
     if ch is None:
