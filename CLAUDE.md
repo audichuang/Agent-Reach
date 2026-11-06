@@ -26,7 +26,7 @@ Private downstream of github.com/Panniantong/Agent-Reach | License: MIT | Versio
 - `channels/google_news.py`, `channels/hackernews.py` — no-browser news channels over OpenCLI (`google news`, `hackernews`); default level, tools `opencli`+`node`, no login
 - `backends/opencli.py` `opencli_public_items` — backend label `opencli-public` skips the browser binding, query slot and pacing in dispatch; use it for any OpenCLI site that needs no browser
 - `runtime/session_reuse.prepare(self_heal=True)` / `login --self-heal` — agent-run re-import that refuses (NEED_LOGIN) when the record is `blocked` or `manual`; `--import-existing` stays upstream-forced
-- Skill: narrowed description, dedicated skills (redbook) first, `references/downstream.md` and `references/firecrawl.md`
+- Skill: narrowed description, dedicated skills (redbook) first, `references/downstream.md`, `references/firecrawl.md` and `references/research.md` (news URL lookup, subagent preflight)
 
 ## Release and rollout
 - PRs into `local` are merged by the agent (merge commit) once review and CI pass; `windows-test` has been red on `local` since before 1.6.1.1, so judge by the other jobs

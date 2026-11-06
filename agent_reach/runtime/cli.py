@@ -170,9 +170,9 @@ def _cmd_read(args: Sequence[str]) -> int:
         ns = parser.parse_args(list(args))
     except _ArgError as exc:
         return _bad_input(None, "read", f"{exc}; usage: agent-reach read <url>")
-    twitter = _channel("twitter")
-    if isinstance(twitter, TwitterChannel) and twitter.is_status_url(ns.url) and ns.backend in (None, "opencli"):
+    if TwitterChannel.is_status_url(ns.url) and ns.backend in (None, "opencli"):
         # The web readers only see x.com's login wall; the thread action returns the real tweets.
+        twitter = cast(Channel, _channel("twitter"))
         return _emit(run_action(twitter, "thread", {"target": ns.url}, timeout=ns.timeout, only_backend=ns.backend))
     readers = [ch for ch in unified_channels() if find_action(ch, "read")]
     specific = [ch for ch in readers if ch.name != "web"]
@@ -392,9 +392,12 @@ def _login_channel(cmd: str, args: Sequence[str]):
     parser = _Parser(prog=cmd, add_help=False)
     parser.add_argument("channel")
     if cmd == "login":
-        parser.add_argument("--import-existing", action="store_true")
-        parser.add_argument("--sync", action="store_true")
-        parser.add_argument("--self-heal", action="store_true")
+        # Each flag picks a different login path and _cmd_login runs only the first match,
+        # so any combination would silently drop the others.
+        mode = parser.add_mutually_exclusive_group()
+        mode.add_argument("--import-existing", action="store_true")
+        mode.add_argument("--sync", action="store_true")
+        mode.add_argument("--self-heal", action="store_true")
     ns = parser.parse_args(list(args))
     ch = _channel(ns.channel)
     if ch is None:

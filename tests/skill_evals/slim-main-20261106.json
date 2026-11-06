@@ -1,0 +1,15 @@
+{
+  "date": "2026-11-06",
+  "model": "Claude sonnet (executors and graders, via Workflow)",
+  "baseline": "skill as rendered on local c11aa25 (1.6.1.1)",
+  "candidate": "fix/review-1105: research/news URL lookup and subagent preflight details moved to references/research.md; Firecrawl and NEED_LOGIN cells shortened to pointers (SKILL.md 13369 -> 11442 bytes)",
+  "body": {
+    "method": "6 of 10 research-depth cases touched by the change (0,2,3,4,5,7), one live read-only run per arm, state-changing commands logged as WOULD RUN, graded per expectation",
+    "new": "21/22",
+    "old": "17/22",
+    "per_case": {"0": "4/4 vs 2/4", "2": "3/3 vs 2/3", "3": "4/4 vs 4/4", "4": "4/4 vs 4/4", "5": "3/3 vs 3/3", "7": "3/4 vs 2/4"},
+    "references_read": "new arm opened references/research.md on cases 0, 3, 7 and sessions.md on case 4; old arm opened no references on 0, 3, 5, 7",
+    "skipped": "cases 1, 6, 8, 9 (sections unchanged)"
+  },
+  "eval_set": "tests/skill_evals/research-depth/evals.json"
+}

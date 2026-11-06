@@ -21,7 +21,8 @@ HN_ROWS = {"ok": True, "data": [{"rank": 1, "id": 7, "title": "Rust", "score": 9
 @pytest.fixture
 def run(monkeypatch):
     """Mock the subprocess layer; fail loudly if the browser path is touched."""
-    from agent_reach.runtime import browser, browser_binding, run as run_mod
+    from agent_reach.runtime import browser, browser_binding
+    from agent_reach.runtime import run as run_mod
     cmd = Mock(return_value="")
     monkeypatch.setattr(run_mod, "run_cmd", cmd)
     for mod, name in ((browser_binding, "environment"), (browser, "save_session"),
@@ -90,6 +91,7 @@ def test_empty_result_is_not_found(run):
 
 def test_upstream_not_found_error_is_not_found_and_does_not_pause(run):
     import json
+
     from agent_reach.runtime.run import CommandFailed
     payload = json.dumps({"ok": False, "error": {"code": "NOT_FOUND", "message": "No news articles found"}})
     run.side_effect = CommandFailed("UPSTREAM_BROKEN", "exit 1", stdout=payload)

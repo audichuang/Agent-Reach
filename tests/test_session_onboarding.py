@@ -374,6 +374,11 @@ def test_self_heal_refuses_logout_and_manual_records(monkeypatch, capsys, record
     assert state.load()['session_reuse']['xiaohongshu'] == record
 
 
+def test_self_heal_cannot_combine_with_import_existing(capsys):
+    assert cli.main(['login', 'xiaohongshu', '--self-heal', '--import-existing']) == 1
+    assert json.loads(capsys.readouterr().out)['error']['code'] == 'BAD_INPUT'
+
+
 def test_self_heal_is_refused_for_session_channels(capsys):
     assert cli.main(['login', 'bilibili', '--self-heal']) == 1
     assert json.loads(capsys.readouterr().out)['error']['code'] == 'BAD_INPUT'

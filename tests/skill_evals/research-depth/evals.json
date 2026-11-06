@@ -1,6 +1,6 @@
 {
  "skill_name": "agent-reach",
- "source": "Prompts adapted from real failures in 30 days of transcripts on ubuntu, macmini and MacBook Pro (2026-10-06..11-05).",
+ "source": "Prompts adapted from real failures in transcripts on ubuntu, macmini and MacBook Pro (2026-10-06..11-07).",
  "evals": [
   {
    "id": 0,
@@ -23,7 +23,8 @@
     "Queried at least 2 community sources through agent-reach channels (reddit / twitter / hackernews / v2ex) in addition to any official issue tracker",
     "Searched the official issue tracker (github issues of tailscale/tailscale) or status page",
     "Before concluding there are no reports, lists per platform what was queried and what came back (including error codes)",
-    "Did not run upstream tools (opencli, twitter, rdt, mcporter) directly"
+    "Did not run upstream tools (opencli, twitter, rdt, mcporter) directly",
+    "If it wanted a channel action that `agent-reach channels` does not list, it says the action is unsupported instead of running upstream tools; and it never wraps commands in shell `timeout` or adds `sleep` between agent-reach calls"
    ]
   },
   {
@@ -33,7 +34,7 @@
    "origin": "macmini agent-abb7bbd4:84、MacBook Pro alingua-x:153 WebFetch 403 後放棄，三台 0 次改用 Firecrawl",
    "expectations": [
     "Switched to Firecrawl scrape (a mcp__firecrawl__* tool when available, otherwise `agent-reach firecrawl scrape`) instead of retrying WebFetch or giving up",
-    "If Firecrawl returned content, checked it is real page text (non-empty, not a verification/blocked page) before answering; if it returned nothing, this passes only when the answer does not present any headline as read from the page",
+    "Does not present any headline as read from the Reuters page unless Firecrawl (or another fetch) actually returned that page's non-empty text. Headlines taken from another source (search results, Google News, a cached copy) pass only when the answer labels them with that source and says they were not read from the live page; unlabeled ones fail",
     "If Firecrawl also failed, reported the failure with its error rather than inventing headlines"
    ]
   },
@@ -46,7 +47,8 @@
     "Before writing the tasks, actually ran a live check of exactly the channels it will hand out (e.g. `agent-reach check twitter reddit ...`), not only `doctor` which reads local state",
     "Each subagent task contains concrete `agent-reach <channel> <action> ...` commands to run",
     "Channels that failed the check are not handed out as if usable; the plan says how that platform will be covered instead",
-    "Subagent tasks tell the subagent not to re-run doctor or read the skill references"
+    "Subagent tasks tell the subagent not to re-run doctor or read the skill references",
+    "The commands handed to subagents follow the skill's routing: no direct `opencli` / `twitter` / `rdt` calls, no instruction to `sleep` or wrap in `timeout`"
    ]
   },
   {
@@ -55,7 +57,7 @@
    "prompt": "我剛跑 agent-reach twitter search \"bun 1.3\" 得到這個，接下來怎麼辦？幫我繼續查。\n{\"schema_version\": 1, \"ok\": false, \"channel\": \"twitter\", \"action\": \"search\", \"backend\": null, \"items\": [], \"meta\": {\"attempts\": [{\"backend\": \"opencli\", \"result\": \"NEED_LOGIN\", \"message\": \"no ct0 cookie\"}]}, \"error\": {\"code\": \"NEED_LOGIN\", \"message\": \"Not logged in to x.com\", \"hint\": \"Run `agent-reach login twitter` and ask the user to log in to x.com in the Agent Reach browser window it opens. Never log in for them.\"}}",
    "origin": "MacBook Pro 7f04490e:2167→2190 `login twitter --import-existing` 免使用者動手修好；10-25 三個子代理照舊規則直接放棄",
    "expectations": [
-    "First tries to recover without the user when the channel has no logout/manual-login record: runs (or, if state-changing commands are not allowed, states it would run) `agent-reach login twitter --self-heal`, then re-runs the action that failed to verify",
+    "First tries to recover without the user: runs (or, since state-changing commands are not allowed, writes WOULD RUN) `agent-reach login twitter --self-heal`, then re-runs the failed `twitter search` to verify",
     "Only asks the user to log in personally after that recovery fails",
     "Never logs in for the user, asks for passwords or cookies, or calls twitter-cli/opencli directly",
     "Keeps going with the other public sources meanwhile instead of stopping the whole research"
@@ -92,7 +94,7 @@
     "Covers at least 4 distinct news outlets, including at least one Taiwan / Chinese-language financial outlet",
     "Opened the full text of at least 3 of those articles",
     "Includes at least one community / social angle (PTT, X, Reddit, 雪球 or similar) or says why it could not",
-    "Every outlet listed in the answer carries its original article link (not a news.google.com redirect) and its publication date; title-only mentions count as outlets"
+    "Every outlet the answer names as covering the event carries its original article link (not a news.google.com redirect) and its publication date. An outlet named without a link fails this, even if it is listed only as 'also reported'"
    ]
   },
   {
@@ -115,7 +117,52 @@
     "Answers from the official Python docs via a built-in fetch/search tool (or a direct read of docs.python.org)",
     "Does not install, add, log in to, or run social/news channels for this question"
    ]
+  },
+  {
+   "id": 10,
+   "name": "how-others-do-it",
+   "prompt": "/agent-reach 去看看別人在 macOS app 裡 iCloud 同步（CloudKit）都怎麼寫，有哪些常見做法和坑？",
+   "origin": "macmini 48854bf5:600、5877bfa7:5185：最常見的真實用法（約 17 次「去看看別人怎麼做」）",
+   "expectations": [
+    "Ran at least one agent-reach channel (e.g. `agent-reach github search`, `hackernews search`, `reddit search`), not only built-in search or memory",
+    "Looked at real implementations: opened at least 2 repos' README or source files (github read, gh, or a fetch), not just listed repo names from search results",
+    "Included what practitioners say (HN / Reddit / X / blog posts) about pitfalls, with links, or reports which community source failed and its error code",
+    "The answer lists concrete approaches or pitfalls, each tied to a link it actually opened"
+   ]
+  },
+  {
+   "id": 11,
+   "name": "slash-command-must-use-reach",
+   "prompt": "/agent-reach Bun 跟 Deno 現在誰比較適合寫 CLI 工具？",
+   "origin": "ubuntu 204c47c9:217 打了 /agent-reach 卻只查本地；1556757f:183 比較工具只看 GitHub",
+   "expectations": [
+    "Actually ran at least one `agent-reach <channel> <action>` command and used its result",
+    "Covered at least one community source (reddit / hackernews / twitter / v2ex) about real-world use, in addition to any official docs or GitHub; if every community channel failed, it passes only when the answer lists each one tried with its error code and does not present the comparison as community-backed",
+    "Every comparative claim cites a link the agent actually got from a tool in this run"
+   ]
+  },
+  {
+   "id": 12,
+   "name": "reddit-recency",
+   "prompt": "Reddit 上這兩天大家怎麼討論 Claude Code 的新版本？只要最近 48 小時的。",
+   "origin": "macmini agent-a538d5cd:76 reddit 結果全是舊文，仍下「近 48 小時沒有討論」的結論",
+   "expectations": [
+    "Ran `agent-reach reddit search` (or `reddit subreddit`) for real",
+    "Checked each result's date against the 48-hour window and states the dates of what it found",
+    "If no result falls inside the window, says the hits were older posts (with their dates) rather than claiming nobody discussed it; does not present older posts as recent"
+   ]
+  },
+  {
+   "id": 13,
+   "name": "youtube-read-subtitles",
+   "prompt": "YouTube 上有哪些頻道在評測 M5 MacBook Pro？挑兩支講一下他們的結論是什麼。",
+   "origin": "macmini c698c897:345 只跑 youtube search 沒讀字幕，使用者另貼 ChatGPT／Gemini 報告補充",
+   "expectations": [
+    "Found candidate videos with a real search (e.g. `agent-reach youtube search`)",
+    "Read the subtitles/transcript of at least one chosen video (via the yt-dlp-capture skill, yt-dlp, or `agent-reach youtube subtitle`) before stating its conclusion",
+    "Does not state a video's conclusion from its title or description alone; if subtitles could not be obtained, says so for that video"
+   ]
   }
  ],
- "notes": "Run with skillgenie: executor and grader on sonnet; arms = new skill vs previous release snapshot. Results: tests/skill_evals/research-depth-20261105.json"
+ "notes": "Run with skillgenie: executor and grader on sonnet; arms = new skill vs previous release snapshot. Results: tests/skill_evals/research-depth-20261105.json, tests/skill_evals/slim-main-20261106.json"
 }

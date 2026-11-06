@@ -1,0 +1,16 @@
+{
+  "date": "2026-11-07",
+  "model": "Claude sonnet (executors and graders, via Workflow)",
+  "why": "30-day transcript review on ubuntu and macmini (excluding Agent-Reach dev): most common real request 'look at how others do X' (~17 on macmini) had no case; ~20 self-added sleeps traced to references/sessions.md '10 seconds between searches'; parent agents routing xiaohongshu away from redbook; reddit stale results reported as 'no recent discussion'; youtube search without reading subtitles",
+  "baseline": "skill as rendered on local c11aa25 (1.6.1.1)",
+  "candidate": "fix/review-1105 719b880: implementation-reference routing row, reddit recency and youtube subtitle notes, unsupported actions, delegated commands follow routing, sessions.md no longer asks for a 10 s gap",
+  "new_cases": [10, 11, 12, 13],
+  "clarified_expectations": {"2": "headline from another source must be labelled", "4": "dropped the invisible logout/manual-record condition", "7": "every named outlet needs link and date", "1": "added unsupported-action / no sleep or timeout", "3": "added delegated commands follow routing"},
+  "body": {
+    "reruns": "cases 1, 10-13: two live samples per arm (a resume re-ran executors); new 31/36, old 26/36",
+    "per_case": {"1": "5/5,5/5 vs 5/5,5/5", "10": "3/4,3/4 vs 3/4,2/4", "11": "3/3,1/3 vs 2/3,1/3", "12": "3/3,2/3 vs 1/3,2/3", "13": "3/3,3/3 vs 3/3,2/3"},
+    "regraded_iter1_outputs": {"2": "3/3 vs 3/3", "3": "5/5 vs 5/5", "4": "4/4 vs 4/4", "7": "3/4 vs 2/4"},
+    "noise": "reddit opencli was paused (UPSTREAM_BROKEN) and Exa public-web hit RATE_LIMITED during runs; case 12 old sample 1 and case 11 sample 2 (both arms) lost their community source to that, so their deltas are not skill effects"
+  },
+  "eval_set": "tests/skill_evals/research-depth/evals.json"
+}
