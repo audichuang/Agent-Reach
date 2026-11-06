@@ -25,7 +25,7 @@ class HackerNewsChannel(Channel):
             "sort=date is newest first and mostly returns low-score noise",
             (
                 Param("query", "what to search for"),
-                Param("limit", "max stories", required=False, type=int, default=10),
+                _LIMIT,
                 Param("sort", "relevance or date", required=False, default="relevance"),
             ),
             (("opencli-public", "_search"),),
