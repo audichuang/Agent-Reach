@@ -11,6 +11,7 @@
   {"query": "這個網頁 WebFetch 回 403 讀不到 https://www.reuters.com/technology/ 幫我讀內容", "should_trigger": true},
   {"query": "B站上有沒有人評測 Sony WH-1000XM6，大家說音質怎樣", "should_trigger": true},
   {"query": "agent-reach 說 reddit 要登入 NEED_LOGIN，可是我明明登過了", "should_trigger": true},
+  {"query": "去看看別人在 SwiftUI 裡怎麼做 iCloud 同步，有哪些寫法", "should_trigger": true},
   {"query": "小红书上搜一下台北好喝的咖啡店", "should_trigger": false},
   {"query": "抓這部 YouTube 影片的字幕給我 https://www.youtube.com/watch?v=dQw4w9WgXcQ", "should_trigger": false},
   {"query": "幫我寫一個 Python 函式把 list 去重但保留順序", "should_trigger": false},
