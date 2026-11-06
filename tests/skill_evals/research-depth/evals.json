@@ -137,7 +137,7 @@
    "origin": "ubuntu 204c47c9:217 打了 /agent-reach 卻只查本地；1556757f:183 比較工具只看 GitHub",
    "expectations": [
     "Actually ran at least one `agent-reach <channel> <action>` command and used its result",
-    "Covered at least one community source (reddit / hackernews / twitter / v2ex) about real-world use, in addition to any official docs or GitHub",
+    "Covered at least one community source (reddit / hackernews / twitter / v2ex) about real-world use, in addition to any official docs or GitHub; if every community channel failed, it passes only when the answer lists each one tried with its error code and does not present the comparison as community-backed",
     "Every comparative claim cites a link the agent actually got from a tool in this run"
    ]
   },
