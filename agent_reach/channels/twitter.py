@@ -104,6 +104,7 @@ class TwitterChannel(Channel):
 
     def _opencli_thread(self, *, target: str, limit: int, timeout: float) -> list:
         target = str(target).strip()
-        m = _STATUS_ID_RE.match(urlsplit(target).path) if "/" in target else None
+        # search, not the anchored path regex: scheme-less "x.com/u/status/1" has no leading "/" path.
+        m = re.search(r"/status/(\d+)", target)
         tweet_id = m.group(1) if m else target
         return _x(["thread", tweet_id, "--limit", str(limit)], timeout)[:limit]

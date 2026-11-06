@@ -150,6 +150,9 @@ def test_github_only_claims_urls_the_parser_understands():
         ("https://x.com/jack/status/20/?s=46", "20"),
         ("https://x.com/jack/status/20?s=1", "20"),
         ("20", "20"),
+        ("x.com/jack/status/20", "20"),
+        ("twitter.com/jack/status/20?s=1", "20"),
+        ("https://x.com/i/web/status/20", "20"),
     ],
 )
 def test_twitter_thread_extracts_status_id(url, tid, monkeypatch):
