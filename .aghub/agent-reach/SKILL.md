@@ -34,7 +34,7 @@ agent-reach read <链接>                   # 按链接自动选渠道
 用户抱怨过"没有对照新闻就胡乱分析""不够大局观"：只看搜索摘要、只查一个来源就下结论是这里最常见的错。
 
 1. **先找带日期的报道**：`google-news search`（中文财经加 `--lang zh-TW --region TW` 或 `--lang zh-CN --region CN`）、科技/开发者话题加 `hackernews search`，再用自带搜索按时间收窄。
-2. **读原文**：挑不同媒体的几篇读全文。摘要和标题不能当因果证据（"股价为什么跌"必须有原文里的说法）。`google-news` 只给标题、媒体（`author`）和日期；它的 `news.google.com/rss/articles/…` 链接是跳转页，`read`、WebFetch、Firecrawl 都只拿到空壳，不要去抓。每篇要读的：拿整句标题（去掉结尾" - 媒体名"、不加引号）找原文 URL——有 `firecrawl_search` 就用它（实测第一条即原文），否则 `agent-reach web search "<标题>"`，再不行用自带搜索加媒体名或 `site:媒体域名`；然后 `agent-reach read` 原文 URL，读不到或 web 被限流就用 Firecrawl scrape。
+2. **读原文**：挑不同媒体的几篇读全文；摘要和标题不能当因果证据（"股价为什么跌"必须有原文里的说法）。`google-news` 的 `news.google.com/rss/articles/…` 链接是跳转页，谁去抓都只拿到空壳：用标题找原文 URL 再读，步骤见 [调研细节](references/research.md)。
 3. **补社区视角**：按下表挑渠道；有人说法时尽量拿到原帖。
 4. **交付**：每个论点、每家媒体附原文链接（不是 news.google.com）和发布日期；按平台列出跑了什么、拿到什么、哪些失败（`error.code`）。说"查无"之前要能列出查过的平台和查询词。
 
@@ -48,20 +48,11 @@ agent-reach read <链接>                   # 按链接自动选渠道
 
 ## 派子代理
 
-用户要深度或多方面调研时，按话题拆给几个子代理并行：
-
-1. 主代理先实测要派出去的渠道：`agent-reach check <渠道1> <渠道2> --search --text`（`--search` 验证的是你实际会走的路由，没 add 的渠道也会走 public-web；没有 search 动作的渠道如 v2ex、小宇宙加了会是 0/0，这类改用不带 `--search` 的 `check <渠道> --text`，或直接跑要派的动作），看每行 PASS/FAIL（有 FAIL 时退出码为 1）。PASS 要看行内 `[backend]` 是不是要派的那条路线；没 add 的渠道标 `[public-web]` 只证明公开网页能用，不证明站内动作能用。`doctor` 只读本地状态，看不出登录已过期。
-2. 只派 PASS 的渠道，把要跑的 `agent-reach …` 命令写进任务。
-3. 告诉子代理：不跑 doctor、不读本 skill 的 references；大 JSON 先用 `jq` 或 python 只取 `title/url/published_at/text`，不整段塞进上下文；回报格式照上面第 4 步。
-4. 并行上限：同平台 2 条、合计 4 条，多出来的 Reach 自动排队。
+用户要深度或多方面调研时，按话题拆给几个子代理并行（同平台 2 条、合计 4 条，多出来的 Reach 自动排队）。派之前主代理先实测要派的渠道：`agent-reach check <渠道1> <渠道2> --search --text`，只派 PASS 的，把要跑的命令写进任务。读 PASS 的方式、没有 search 动作的渠道怎么测、任务里要交代什么，见 [调研细节](references/research.md)。
 
 ## 读不到的网页：Firecrawl
 
-WebFetch 或 `read` 遇到 403、超时、连线重置、Cloudflare/Vercel 验证页、只有 JS 空壳、PDF 时，换 Firecrawl 抓，不要放弃或自己用 curl 拼。会话里有 `mcp__firecrawl__*` 工具就用它们；没有的动作用 `agent-reach firecrawl scrape|map|crawl|status`。
-
-- 单页 → scrape。同一站要读 3 页以上或需要 URL 列表 → 先 map 再逐页 scrape；要很多页 → crawl，用 `--limit`、`--include` 收窄。
-- 成功 = 拿到非空正文，不是 `ok`。验证页、空壳不算。
-- Firecrawl 不用来找新闻（它的 search 加新闻/时间过滤实测无效）；但用 `firecrawl_search` 把已知标题换成原文 URL 可以。细节见 [Firecrawl](references/firecrawl.md)。
+WebFetch 或 `read` 遇到 403、超时、连线重置、验证页、JS 空壳、PDF 时，换 Firecrawl 抓（会话里的 `mcp__firecrawl__*`，或 `agent-reach firecrawl scrape|map|crawl|status`），不要放弃或自己用 curl 拼。成功 = 拿到非空正文，不是 `ok`。单页 scrape、多页先 map、选哪个动作和配置见 [Firecrawl](references/firecrawl.md)。
 
 ## 结果与错误
 
@@ -71,16 +62,16 @@ WebFetch 或 `read` 遇到 403、超时、连线重置、Cloudflare/Vercel 验�
 | error.code | 怎么办 |
 |---|---|
 | `NEED_SETUP` | 缺依赖或密钥。按提示 `agent-reach add <渠道>`；要密钥时请用户本人提供，再 `agent-reach configure <key>` |
-| `NEED_LOGIN` | `message` 提到 403 或 HTML instead of JSON 时按 `UPSTREAM_BROKEN` 那行处理。浏览器登录的渠道（`channels` 里 `login.via: browser`；B 站不是）先自己跑 `agent-reach login <渠道> --self-heal`（从用户已登录的 Chrome 重新复制登录，不开窗口；用户退出过或手动选过账号时它会拒绝，返回 `NEED_LOGIN`，什么都不复制），成功就重跑原来失败的那个动作验证（不用 `check --search`：它不测站内动作）。被拒绝、返回 `NEED_SETUP` 或仍失败，才问用户：用户同意再 `agent-reach login <渠道> --import-existing`，或请用户本人 `agent-reach login <渠道>`；你绝不代登、不要密码 |
-| `UPSTREAM_BROKEN` | 平台暂时有问题，`message` 是原话。403、"HTML instead of JSON" 多半是风控或限流，不代表登出：只有 `channels` 里该动作的 public_web 非空、且 `meta.attempts` 还没试过 public-web 时才换 `--backend public-web`（google-news、hackernews 等不支持，已 add 的渠道会自动试过一次）；否则直接跑同渠道其他动作（如 `reddit subreddit <相关板块>`、`reddit read`），不是只建议。用平台名告诉用户，不说工具名；原话说明工具过时，才在用户同意后跑一次 `agent-reach update`；不循环重试 |
+| `NEED_LOGIN` | `message` 提到 403 或 HTML instead of JSON 时按 `UPSTREAM_BROKEN` 处理。浏览器登录的渠道（`channels` 里 `login.via: browser`）先自己跑 `agent-reach login <渠道> --self-heal`，再重跑原来失败的动作。它被拒绝（用户退出过或手动选过账号）或仍失败才问用户，细节见 [会话与专用浏览器](references/sessions.md)；你绝不代登、不要密码 |
+| `UPSTREAM_BROKEN` | 平台暂时有问题，`message` 是原话；403、"HTML instead of JSON" 多半是风控，不代表登出。`channels` 里该动作的 public_web 非空、且 `meta.attempts` 没试过 public-web 时换 `--backend public-web`；否则直接跑同渠道其他动作（如 `reddit subreddit <相关板块>`、`reddit read`）。用平台名告诉用户，不说工具名；不循环重试 |
 | `TIMEOUT` | 看失败阶段和渠道状态；不反复重试、不反复开窗 |
-| `RATE_LIMITED` | 站内工具返回的：平台限流，Reach 暂停整个渠道一小时，停用该渠道、不换后端。`--backend public-web` 返回的：限流的是它共用的网页搜索（Exa；`web search`、普通网页的 `read` 同时停用），平台本身没被暂停，照上一行跑同渠道其他动作 |
+| `RATE_LIMITED` | 站内工具返回的：Reach 暂停整个渠道一小时，停用该渠道、不换后端。`--backend public-web` 返回的：限流的是共用的网页搜索（`web search`、普通网页 `read` 同时停用），平台本身没停，照上一行跑同渠道其他动作 |
 | `PLATFORM_BLOCKED` | 平台要求验证（验证码/风控）。停下，请用户在官方页面处理；不换账号、不换后端 |
 | `BUSY` | 浏览器排队 2 分钟仍满，或用户正开着登录窗口。过一会儿、或等用户说登好了再试；不关窗口、不切换配置 |
 | `NOT_FOUND` | 内容不存在，核对链接或 ID |
 | `BAD_INPUT` | 参数不对，跑 `agent-reach channels` 看用法 |
 
-`PLATFORM_BLOCKED`、`RATE_LIMITED`、`BUSY` 是硬停：被停的那条路不换账号、后端或浏览器反复请求（public-web 的限流例外见上）。网络失败或某台机器的失败不能说成"平台必须登录"。用户跳过登录时，已拿到的公开结果照样交付。
+`PLATFORM_BLOCKED`、`RATE_LIMITED`、`BUSY` 是硬停：被停的那条路不换账号、后端或浏览器反复请求（public-web 的限流例外见上）。网络失败或某台机器的失败不能说成"平台必须登录"。用户跳过登录时，已拿到的公开结果照样交付。原话说明工具过时，才在用户同意后跑一次 `agent-reach update`。
 
 ## 登录与专用浏览器
 
@@ -129,7 +120,7 @@ WebFetch 或 `read` 遇到 403、超时、连线重置、Cloudflare/Vercel 验�
 |---|---|
 | 加上某个平台 | `agent-reach add <渠道>`，依赖自动装好；只告诉用户他必须做的事（登录或提供密钥） |
 | 去掉某个平台 | `agent-reach remove <渠道>` |
-| 登录 / 登录过期 | 浏览器登录的渠道先自己跑 `agent-reach login <渠道> --self-heal` 再重跑失败的动作；被拒绝或仍失败才问用户：同意后 `--import-existing`，或 `agent-reach login <渠道>` 由用户本人在打开的窗口里登录 |
+| 登录 / 登录过期 | 照上面 `NEED_LOGIN` 那行；用户要自己登录时 `agent-reach login <渠道>`，由本人在打开的窗口里登录 |
 | 退出登录 | `agent-reach logout <渠道>` |
 | 看看状态 / 哪些能用 | `agent-reach doctor --text`（只看本地状态）；实测跑 `agent-reach check <渠道…> --text` |
 | 升级 / 更新 | `agent-reach update` |
