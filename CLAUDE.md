@@ -15,7 +15,7 @@ Private downstream of github.com/Panniantong/Agent-Reach | License: MIT | Versio
 - `agent_reach/runtime/` — dispatch, management (`manage.py`: add/setup/update/skill), dedicated browser, state
 - `agent_reach/channels/` — one file per platform, subclass of `channels/base.py` `Channel`, registered in `channels/__init__.py`
 - `agent_reach/backends/` — shared upstream adapters (OpenCLI, CloakBrowser)
-- `agent_reach/skill/` — SKILL.md template + references, rendered by `manage.render_skill()`
+- `agent_reach/skill/` — SKILL.md template + references, rendered by `manage.render_skill()`. Agents using the skill almost never open references (macmini 2026-11: 0 reads in 42 loads), so any rule they must follow during normal use belongs in SKILL.md; references hold details
 - `.aghub/agent-reach/` — rendered copy that aghub syncs (generated; never edit by hand). Keep it under a path that sorts before `agent_reach/`: aghub dedups same-name skills first-seen, so anywhere later loses to the raw template
 
 ## Downstream changes (keep through upstream syncs)
@@ -32,7 +32,7 @@ Private downstream of github.com/Panniantong/Agent-Reach | License: MIT | Versio
 - PRs into `local` are merged by the agent (merge commit) once review and CI pass; `windows-test` has been red on `local` since before 1.6.1.1, so judge by the other jobs
 - After merging into `local`: `agent-reach update` on ubuntu, macmini and MacBook Pro (local install since 2026-11-22, no longer an SSH shim to ubuntu), then `aghub-cli -g source sync audichuang/Agent-Reach --skill agent-reach --update --yes` on all three
 - Release: on a release branch run `python scripts/record_release_acceptance.py` on ubuntu, then from a clone of the same commit on macmini with `--only <channels that failed>` (macmini has the X login ubuntu lacks; rows are kept per source digest) and copy `.github/release-acceptance.json` back. Actions nobody can test go into `waived` by hand with a reason; tag `v<version>` on the merge commit in `local`
-- After changing skill text, rerun `tests/skill_evals/research-depth/` with skillgenie (previous snapshot vs new, sonnet). Executors need the worktree venv first on PATH and log state-changing commands as WOULD RUN; ~40 live runs trip Exa's rate limit (about 1 h, `cooldowns.web` in `~/.agent-reach/state.json`), so run both arms under the same condition
+- After changing skill text, rerun with skillgenie the `tests/skill_evals/research-depth/` cases that exercise the edited sections plus one nearby case the old version already passes (previous snapshot vs new, sonnet), not the whole set; record results in `tests/skill_evals/<topic>-<date>.json`. Executors need the worktree venv first on PATH and log state-changing commands as WOULD RUN; ~40 live runs trip Exa's rate limit (about 1 h, `cooldowns.web` in `~/.agent-reach/state.json`), so run both arms under the same condition
 
 ## Rules
 - NEVER modify upstream open source projects' source code; channels only route and call public APIs/CLIs
