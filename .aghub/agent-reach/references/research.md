@@ -26,5 +26,6 @@
 - 要跑的 `agent-reach …` 命令（只派 PASS 的渠道）；
 - 命令同样照本 skill 选路：有专门技能的平台写专门技能的命令（如小红书用 redbook），不写直接跑 `opencli`、`twitter` 的命令，也不叫子代理自己 sleep 或套 `timeout`；
 - 不跑 doctor、不读本 skill 的 references；
-- 大 JSON 先用 `jq` 或 python 只取 `title/url/published_at/text`，不整段塞进上下文；
+- 读不到的网页用 `agent-reach firecrawl scrape <url>`，不用 curl 自己拼；
+- 大 JSON 先用 `jq` 或 python 精简：内容取 `title/url/published_at/text`，同时保留 `ok`、`error.code`、`error.hint`、`meta.attempts`，不整段塞进上下文；
 - 回报格式：每条论点附原文链接和发布日期；按平台列出跑了什么、拿到什么、哪些失败（`error.code`）。

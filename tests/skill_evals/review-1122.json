@@ -1,0 +1,11 @@
+{"date": "2026-11-22", "model": "Claude sonnet executors (Agent tool), graded by the main agent against evals.json expectations",
+ "why": "30-day transcript review on macmini (256 agent-reach calls, 42 skill loads; Agent-Reach dev sessions excluded): 1538bd6d:1714 Workflow prompt named only channels, executors guessed flags / wrapped timeout / used curl; 6242df93:471,497 filters printed only error.code and dropped the hint, so reddit fallback was skipped; skill said macOS lacks timeout (it has /usr/bin/timeout)",
+ "baseline": "skill as rendered on local 14b905e",
+ "candidate": "fix/skill-review-1122: delegation note covers Workflow/any delegated prompt with full commands incl. firecrawl scrape; keep ok/error.code/error.hint/meta.attempts when trimming JSON (SKILL.md + research.md, which previously said to keep only content fields); timeout reason corrected",
+ "new_cases": [14],
+ "results": {
+  "3":  {"old": "5/7 (no firecrawl fallback in tasks; trim keeps content only)", "new": "7/7"},
+  "14": {"old": "4/5 (trim keeps content only)", "new": "5/5"},
+  "5":  {"old": "3/3", "new": "3/3"}
+ },
+ "notes": "1 run per arm per case. Eval 14 old already wrote full commands and firecrawl scrape, so the 1538bd6d failure was the main agent not following the skill in a long session, not missing text; the gain credited to this edit is the trimming rule (evals 3, 14) and the firecrawl line in delegated tasks (eval 3)."}

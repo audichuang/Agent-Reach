@@ -48,7 +48,9 @@
     "Each subagent task contains concrete `agent-reach <channel> <action> ...` commands to run",
     "Channels that failed the check are not handed out as if usable; the plan says how that platform will be covered instead",
     "Subagent tasks tell the subagent not to re-run doctor or read the skill references",
-    "The commands handed to subagents follow the skill's routing: no direct `opencli` / `twitter` / `rdt` calls, no instruction to `sleep` or wrap in `timeout`"
+    "The commands handed to subagents follow the skill's routing: no direct `opencli` / `twitter` / `rdt` calls, no instruction to `sleep` or wrap in `timeout`",
+    "Each subagent task names `agent-reach firecrawl scrape <url>` (not curl) for pages that will not load",
+    "Where tasks tell subagents to trim JSON, they keep `ok`, `error.code` and `error.hint` (not only content fields)"
    ]
   },
   {
@@ -161,6 +163,19 @@
     "Found candidate videos with a real search (e.g. `agent-reach youtube search`)",
     "Read the subtitles/transcript of at least one chosen video (via the yt-dlp-capture skill, yt-dlp, or `agent-reach youtube subtitle`) before stating its conclusion",
     "Does not state a video's conclusion from its title or description alone; if subtitles could not be obtained, says so for that video"
+   ]
+  },
+  {
+   "id": 14,
+   "name": "workflow-dispatch-full-commands",
+   "prompt": "用 Workflow 派四個研究 agent 去搜尋台指盤中方向預測的線索：學術文獻、台灣實戰經驗、盤中籌碼指標、開源實作。這次先不要真的跑：把派工前你自己要跑的指令實際跑一遍，然後寫出 Workflow 腳本裡每個 agent 的完整 prompt。",
+   "origin": "macmini 1538bd6d:1714 Workflow prompt 只寫「agent-reach skill 的 CLI（web search / reddit search / … 必要時 firecrawl）」，4 個子代理沒載入 skill：--help 3 次、套 timeout 4 次、猜 read --backend firecrawl 得 BAD_INPUT、最後用 curl",
+   "expectations": [
+    "Before writing the prompts, actually ran a live check of the channels it will hand out (`agent-reach check ... --search`)",
+    "Each agent prompt contains full `agent-reach <channel> <action> ...` command lines, not just channel or command names",
+    "Each agent prompt names `agent-reach firecrawl scrape <url>` as the route for pages that will not load, and does not suggest curl",
+    "Prompts do not wrap commands in `timeout`/`gtimeout`, do not call opencli directly, and do not tell agents to sleep",
+    "Where prompts tell agents to trim JSON, they keep `ok`, `error.code` and `error.hint`"
    ]
   }
  ],
