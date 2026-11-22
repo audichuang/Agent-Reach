@@ -47,7 +47,7 @@ def test_missing_config_never_launches_process(tmp_path, monkeypatch):
 
 
 def test_timeout_does_not_resubmit_crawl(tmp_path, monkeypatch):
-    _config(tmp_path, monkeypatch, {"transport": "local", "mcporter_config": "/tmp/mcp.json"})
+    _config(tmp_path, monkeypatch, {"transport": "local", "mcporter_config": str(tmp_path / "mcp.json")})
     calls = []
 
     def timeout(argv, **kwargs):
@@ -61,14 +61,14 @@ def test_timeout_does_not_resubmit_crawl(tmp_path, monkeypatch):
 
 
 def test_async_crawl_keeps_job_id(tmp_path, monkeypatch):
-    _config(tmp_path, monkeypatch, {"transport": "local", "mcporter_config": "/tmp/mcp.json"})
+    _config(tmp_path, monkeypatch, {"transport": "local", "mcporter_config": str(tmp_path / "mcp.json")})
     monkeypatch.setattr(firecrawl, "run_cmd", lambda *a, **k: '{"id": "job-1", "status": "scraping"}')
     [item] = firecrawl.FirecrawlChannel()._crawl(target="https://example.com", timeout=5)
     assert item["raw"]["id"] == "job-1"
 
 
 def test_crawl_pages_carry_job_fields(tmp_path, monkeypatch):
-    _config(tmp_path, monkeypatch, {"transport": "local", "mcporter_config": "/tmp/mcp.json"})
+    _config(tmp_path, monkeypatch, {"transport": "local", "mcporter_config": str(tmp_path / "mcp.json")})
     out = {"id": "job-2", "status": "completed", "data": [
         {"markdown": "# A", "metadata": {"title": "A", "sourceURL": "https://example.com/a"}}]}
     monkeypatch.setattr(firecrawl, "run_cmd", lambda *a, **k: json.dumps(out))
@@ -83,7 +83,7 @@ def test_read_never_routes_to_firecrawl():
 def test_failure_reports_first_stderr_line(tmp_path, monkeypatch):
     from agent_reach.runtime.run import CommandFailed
 
-    _config(tmp_path, monkeypatch, {"transport": "local", "mcporter_config": "/tmp/mcp.json"})
+    _config(tmp_path, monkeypatch, {"transport": "local", "mcporter_config": str(tmp_path / "mcp.json")})
 
     def fail(*args, **kwargs):
         raise CommandFailed("UPSTREAM_BROKEN", "firecrawl exited 1: }",

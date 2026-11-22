@@ -29,7 +29,7 @@ Private downstream of github.com/Panniantong/Agent-Reach | License: MIT | Versio
 - Skill: narrowed description, dedicated skills (redbook) first, `references/downstream.md`, `references/firecrawl.md` and `references/research.md` (news URL lookup, subagent preflight)
 
 ## Release and rollout
-- PRs into `local` are merged by the agent (merge commit) once review and CI pass; `windows-test` has been red on `local` since before 1.6.1.1, so judge by the other jobs
+- PRs into `local` are merged by the agent (merge commit) once review and CI pass
 - After merging into `local`: `agent-reach update` on ubuntu, macmini and MacBook Pro (local install since 2026-11-22, no longer an SSH shim to ubuntu), then `aghub-cli -g source sync audichuang/Agent-Reach --skill agent-reach --update --yes` on all three
 - Release: on a release branch run `python scripts/record_release_acceptance.py` on ubuntu, then from a clone of the same commit on macmini with `--only <channels that failed>` (macmini has the X login ubuntu lacks; rows are kept per source digest) and copy `.github/release-acceptance.json` back. Actions nobody can test go into `waived` by hand with a reason; tag `v<version>` on the merge commit in `local`
 - After changing skill text, rerun with skillgenie the `tests/skill_evals/research-depth/` cases that exercise the edited sections plus one nearby case the old version already passes (previous snapshot vs new, sonnet), not the whole set; record results in `tests/skill_evals/<topic>-<date>.json`. Executors need the worktree venv first on PATH and log state-changing commands as WOULD RUN; ~40 live runs trip Exa's rate limit (about 1 h, `cooldowns.web` in `~/.agent-reach/state.json`), so run both arms under the same condition
