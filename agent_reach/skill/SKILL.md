@@ -27,7 +27,7 @@ agent-reach <渠道> <动作> [参数]          # 例：agent-reach google-news 
 agent-reach read <链接>                   # 按链接自动选渠道
 ```
 
-只通过 `agent-reach` 调用，不直接跑 `opencli`、`twitter`、`rdt`、`mcporter`（装在私有目录，不一定在 PATH）。限时用 `--timeout 秒数`，不套 `timeout`/`gtimeout`（macOS 没有）。Reach 自己排队、控制同平台的搜索间隔，不要自己 sleep。`channels` 里没有的动作（如 X 书签）直接告诉用户不支持，不绕去跑上游工具。
+只通过 `agent-reach` 调用，不直接跑 `opencli`、`twitter`、`rdt`、`mcporter`（装在私有目录，不一定在 PATH）。限时用 `--timeout 秒数`，不套外部 `timeout`/`gtimeout`：它直接杀掉进程，拿不到 JSON 里的 `TIMEOUT` 和 hint。Reach 自己排队、控制同平台的搜索间隔，不要自己 sleep。`channels` 里没有的动作（如 X 书签）直接告诉用户不支持，不绕去跑上游工具。
 
 ## 调研与新闻
 
@@ -51,6 +51,8 @@ agent-reach read <链接>                   # 按链接自动选渠道
 
 用户要深度或多方面调研时，按话题拆给几个子代理并行（同平台 2 条、合计 4 条，多出来的 Reach 自动排队）。派之前主代理先实测要派的渠道：`agent-reach check <渠道1> <渠道2> --search --text`，只派 PASS 的，把要跑的命令写进任务。读 PASS 的方式、没有 search 动作的渠道怎么测、任务里要交代什么，见 [调研细节](references/research.md)。
 
+Workflow 脚本和任何委派 prompt 同样适用：执行者多半没载入本 skill，只看得到你写的 prompt；只写渠道名时它会自己猜旗标（`--help`、`--backend firecrawl`）或退回 curl。所以把完整命令写进去，包括读不到网页时的 `agent-reach firecrawl scrape <url>`。
+
 ## 读不到的网页：Firecrawl
 
 WebFetch 或 `read` 遇到 403、超时、连线重置、验证页、JS 空壳、PDF 时，换 Firecrawl 抓（会话里的 `mcp__firecrawl__*`，或 `agent-reach firecrawl scrape|map|crawl|status`），不要放弃或自己用 curl 拼。成功 = 拿到非空正文，不是 `ok`。单页 scrape、多页先 map、选哪个动作和配置见 [Firecrawl](references/firecrawl.md)。
@@ -58,6 +60,7 @@ WebFetch 或 `read` 遇到 403、超时、连线重置、验证页、JS 空壳�
 ## 结果与错误
 
 - `ok: true` → 内容在 `items`，每条有 `title / url / author / published_at / text`，原始数据在 `raw`。`items` 为空要说出来或换路，不当成"查过了"。
+- 用 jq/python 精简输出时同时保留 `ok`、`error.code`、`error.hint`、`meta.attempts`：失败后怎么换路要看 hint 和已试过的后端，只印错误码会漏掉。
 - `ok: false` → 看 `error.code`，照 `error.hint` 做：
 
 | error.code | 怎么办 |

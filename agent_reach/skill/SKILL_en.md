@@ -27,7 +27,7 @@ agent-reach <channel> <action> [args]     # e.g. agent-reach google-news search 
 agent-reach read <url>                    # picks the channel from the URL
 ```
 
-Call only through `agent-reach`, never `opencli`, `twitter`, `rdt` or `mcporter` directly (they live in a private folder and may not be on PATH). Limit time with `--timeout SECONDS`, not `timeout`/`gtimeout` (macOS lacks them). Reach queues and paces same-platform searches itself; do not sleep between calls. An action not listed in `channels` (e.g. X bookmarks) is unsupported: say so instead of running upstream tools.
+Call only through `agent-reach`, never `opencli`, `twitter`, `rdt` or `mcporter` directly (they live in a private folder and may not be on PATH). Limit time with `--timeout SECONDS`, not an outer `timeout`/`gtimeout`: it kills the process, so the JSON `TIMEOUT` and its hint never arrive. Reach queues and paces same-platform searches itself; do not sleep between calls. An action not listed in `channels` (e.g. X bookmarks) is unsupported: say so instead of running upstream tools.
 
 ## Research and news
 
@@ -51,6 +51,8 @@ Users have complained "analysing without checking the news is wrong" and "no big
 
 When the user wants depth or several angles, split by topic across subagents in parallel (2 per platform, 4 in total; Reach queues the rest). Before handing out, live-test the channels yourself: `agent-reach check <ch1> <ch2> --search --text`, hand out only PASS channels, with the exact commands in the task. How to read PASS, how to test channels without a search action, and what to tell subagents: [Research details](references/research.md).
 
+This applies to Workflow scripts and any delegated prompt too: the executor usually has not loaded this skill and sees only your prompt; given just channel names it guesses flags (`--help`, `--backend firecrawl`) or falls back to curl. Write the full commands, including `agent-reach firecrawl scrape <url>` for pages that will not load.
+
 ## Pages you cannot read: Firecrawl
 
 When WebFetch or `read` hits 403, a timeout, a connection reset, a verification page, a JS-only shell or a PDF, switch to Firecrawl (the session's `mcp__firecrawl__*` tools, or `agent-reach firecrawl scrape|map|crawl|status`) instead of giving up or hand-parsing with curl. Success = non-empty body text, not `ok`. Which action to use (one page scrape, several pages map first) and setup: [Firecrawl](references/firecrawl.md).
@@ -58,6 +60,7 @@ When WebFetch or `read` hits 403, a timeout, a connection reset, a verification 
 ## Results and errors
 
 - `ok: true` → content in `items`; each has `title / url / author / published_at / text`, upstream data in `raw`. Empty `items` must be reported or routed around, not treated as "checked".
+- When trimming output with jq/python, keep `ok`, `error.code`, `error.hint` and `meta.attempts`: what to try after a failure depends on the hint and the backends already tried, and printing only the code loses it.
 - `ok: false` → branch on `error.code` and follow `error.hint`:
 
 | error.code | What to do |
