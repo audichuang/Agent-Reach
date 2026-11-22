@@ -11,7 +11,7 @@ spec.loader.exec_module(render)
 
 def test_rendered_skill_is_current():
     want = render.expected()
-    have = {str(p.relative_to(render.OUT)): p.read_text(encoding="utf-8")
+    have = {p.relative_to(render.OUT).as_posix(): p.read_text(encoding="utf-8")
             for p in render.OUT.rglob("*") if p.is_file()}
     assert have == want, "stale .aghub/agent-reach: run `python scripts/render_skill.py`"
     assert "{{" not in want["SKILL.md"]
