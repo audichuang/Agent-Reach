@@ -69,13 +69,13 @@ WebFetch 或 `read` 遇到 403、超时、连线重置、验证页、JS 空壳�
 | `NEED_LOGIN` | `message` 提到 403 或 HTML instead of JSON 时按 `UPSTREAM_BROKEN` 处理。浏览器登录的渠道（`channels` 里 `login.via: browser`）先自己跑 `agent-reach login <渠道> --self-heal`，再重跑原来失败的动作。它被拒绝（用户退出过或手动选过账号）或仍失败才问用户，细节见 [会话与专用浏览器](references/sessions.md)；你绝不代登、不要密码 |
 | `UPSTREAM_BROKEN` | 平台暂时有问题，`message` 是原话；403、"HTML instead of JSON" 多半是风控，不代表登出。`channels` 里该动作的 public_web 非空、且 `meta.attempts` 没试过 public-web 时换 `--backend public-web`；否则直接跑同渠道其他动作（如 `reddit subreddit <相关板块>`、`reddit read`）。用平台名告诉用户，不说工具名；不循环重试 |
 | `TIMEOUT` | 看失败阶段和渠道状态；不反复重试、不反复开窗 |
-| `RATE_LIMITED` | 站内工具返回的：Reach 暂停整个渠道一小时，停用该渠道、不换后端。`--backend public-web` 返回的：限流的是共用的网页搜索（`web search`、普通网页 `read` 同时停用），平台本身没停，照上一行跑同渠道其他动作 |
+| `RATE_LIMITED` | 站内工具返回的：Reach 暂停整个渠道一小时，停用该渠道、不换后端。`--backend public-web` 返回的：限流的是共用的网页搜索（`web search`、普通网页 `read` 同时停用），平台本身没停，照上一行跑同渠道其他动作。`web` 渠道本身被限流时，要读的网页改用 `agent-reach firecrawl scrape <url>`（Firecrawl 不共用这个额度），不要就此放弃原文 |
 | `PLATFORM_BLOCKED` | 平台要求验证（验证码/风控）。停下，请用户在官方页面处理；不换账号、不换后端 |
 | `BUSY` | 浏览器排队 2 分钟仍满，或用户正开着登录窗口。过一会儿、或等用户说登好了再试；不关窗口、不切换配置 |
 | `NOT_FOUND` | 内容不存在，核对链接或 ID |
 | `BAD_INPUT` | 参数不对，跑 `agent-reach channels` 看用法 |
 
-`PLATFORM_BLOCKED`、`RATE_LIMITED`、`BUSY` 是硬停：被停的那条路不换账号、后端或浏览器反复请求（public-web 的限流例外见上）。网络失败或某台机器的失败不能说成"平台必须登录"。用户跳过登录时，已拿到的公开结果照样交付。原话说明工具过时，才在用户同意后跑一次 `agent-reach update`。
+`PLATFORM_BLOCKED`、`RATE_LIMITED`、`BUSY` 是硬停：被停的那条路不换账号、后端或浏览器反复请求（public-web 与 `web` 的限流例外见上）。网络失败或某台机器的失败不能说成"平台必须登录"。用户跳过登录时，已拿到的公开结果照样交付。原话说明工具过时，才在用户同意后跑一次 `agent-reach update`。
 
 ## 登录与专用浏览器
 
